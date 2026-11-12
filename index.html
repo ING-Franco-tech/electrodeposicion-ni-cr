@@ -96,6 +96,12 @@ svg text{font-family:var(--fb)}
 .phases{display:flex;gap:8px;flex-wrap:wrap}.phases span{font:600 17px var(--fd);padding:9px 16px;border-radius:999px;border:1.5px solid var(--line);color:var(--muted);background:#fff;transition:all .35s}.phases span.on{background:var(--ink);border-color:var(--ink);color:#fff}.phases span.ok.on{background:var(--ok);border-color:var(--ok)}
 #rotate{display:none}
 @media (orientation:portrait) and (max-width:700px){#rotate{display:flex;position:fixed;inset:0;z-index:100;background:var(--paper);flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:32px;text-align:center}#rotate p{font:600 20px var(--fd);color:var(--ink)}}
+.actl{display:flex;gap:10px;align-items:center;margin-top:14px}
+.actl button{font:600 17px var(--fd);padding:9px 18px;border-radius:999px;border:1.5px solid var(--ink);background:#fff;color:var(--ink);cursor:pointer}
+.actl button.play{background:var(--ink);color:#fff}
+.actl .hint{font:500 15px var(--fb);color:var(--muted);margin-left:6px}
+.phases.click span{cursor:pointer}
+.phases.click span:hover{border-color:var(--ink);color:var(--ink)}
 body.static *{transition:none!important;animation:none!important}
 body.static .active .step{opacity:1;transform:none}
 body.static .active .draw{stroke-dashoffset:0}
@@ -147,7 +153,7 @@ body.static .active .draw{stroke-dashoffset:0}
   <style>.toc li{font-size:30px;margin:26px 0}.toc h3{font-size:36px}.toc .card{padding:34px 34px}</style>
   <div class="row toc" style="margin-top:60px;gap:28px;height:560px">
     <div class="card r" style="--d:1;flex:1;border-top:6px solid var(--cu)"><div class="mono sub">01</div><h3 style="margin-top:10px">Fundamentos</h3><ul class="clean"><li>Celda electrolítica</li><li>Ley de Faraday</li><li>Efecto de la densidad de corriente</li></ul></div>
-    <div class="card r" style="--d:2;flex:1;border-top:6px solid var(--ni)"><div class="mono sub">02</div><h3 style="margin-top:10px">Niquelado y cromado</h3><ul class="clean"><li>Baño de níquel</li><li>Baño de cromo</li><li>Eficiencia de corriente</li><li>Orden de las capas</li></ul></div>
+    <div class="card r" style="--d:2;flex:1;border-top:6px solid var(--ni)"><div class="mono sub">02</div><h3 style="margin-top:10px">Niquelado y cromado</h3><ul class="clean"><li>Baño de níquel</li><li>Baño de cromo</li><li>Ánodo de Pb o grafito</li><li>Eficiencia de corriente</li><li>Orden de las capas</li></ul></div>
     <div class="card r" style="--d:3;flex:1;border-top:6px solid var(--cr)"><div class="mono sub">03</div><h3 style="margin-top:10px">Práctica</h3><ul class="clean"><li>Diagrama de flujo y montaje</li><li>Parámetros y masas</li><li>Cálculos</li><li>Patrón en la zona cromada</li><li>Conclusiones</li></ul></div>
   </div>
 </section>
@@ -260,16 +266,17 @@ body.static .active .draw{stroke-dashoffset:0}
       <b class="mono">η</b><span>Eficiencia: Ni ≈ 95 % · Cr 12 % (ejemplo dentro del rango típico 10–15 %)</span>
     </div>
   </div>
-  <div class="card r" style="--d:2;position:absolute;right:80px;top:220px;width:640px;border-top:6px solid var(--ni)">
-    <span class="tag ni">Ejemplo · niquelado</span>
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin:22px 0 10px">
-      <div><div class="sub">i (ref.)</div><div class="mono" style="font-size:28px;font-weight:600">3 A/dm²</div></div>
-      <div><div class="sub">Área</div><div class="mono" style="font-size:28px;font-weight:600">0,201 dm²</div></div>
-      <div><div class="sub">I</div><div class="mono" style="font-size:28px;font-weight:600">0,60 A</div></div>
+  <div class="r" style="--d:2;position:absolute;right:80px;top:200px;width:660px;display:flex;flex-direction:column;gap:16px">
+    <div class="card" style="border-top:6px solid var(--ni);padding:20px 26px">
+      <div style="display:flex;justify-content:space-between;align-items:center"><span class="tag ni">Ejemplo · níquel</span><span style="font:500 18px var(--fb);color:var(--muted)">j = 3 A/dm² → I = 0,60 A · 15 min · η 95 %</span></div>
+      <div class="formula" style="font-size:24px;margin-top:16px">m =<span class="frac"><span>58,69 · 0,60 · 900</span><span>2 · 96 485</span></span>· 0,95 =<b class="ni" style="font-size:32px;margin-left:8px">0,156 g</b></div>
+      <p style="margin-top:12px;font-size:19px">Espesor ≈ 8,7 µm. Masa medida en la práctica: <b>0,152 g</b>.</p>
     </div>
-    <div class="formula" style="font-size:24px;margin-top:20px">m =<span class="frac"><span>58,69 · 0,60 · 900</span><span>2 · 96 485</span></span>· 0,95</div>
-    <div style="display:flex;align-items:baseline;gap:14px;margin-top:22px"><div class="big-num ni" style="font-size:60px">0,156 g</div><div class="sub">en 15 min</div></div>
-    <p style="margin-top:14px;font-size:20px">Masa medida en la práctica: <b>0,152 g</b>.</p>
+    <div class="card" style="border-top:6px solid var(--cr);padding:20px 26px">
+      <div style="display:flex;justify-content:space-between;align-items:center"><span class="tag cr">Ejemplo · cromo</span><span style="font:500 18px var(--fb);color:var(--muted)">j = 22 A/dm² → I = 4,42 A · 8 min · η 12 %</span></div>
+      <div class="formula" style="font-size:24px;margin-top:16px">m =<span class="frac"><span>52,00 · 4,42 · 480</span><span>6 · 96 485</span></span>· 0,12 =<b class="cr" style="font-size:32px;margin-left:8px">0,023 g</b></div>
+      <p style="margin-top:12px;font-size:19px">Espesor ≈ 1,6 µm. Con la misma carga del ejemplo de níquel (540 C) se depositarían solo <b>0,006 g</b> de cromo.</p>
+    </div>
   </div>
 </section>
 
@@ -280,7 +287,8 @@ body.static .active .draw{stroke-dashoffset:0}
     <canvas id="niCanvas" width="1520" height="700" style="width:760px;height:350px;border-radius:16px;border:1px solid var(--line);background:#fff"></canvas>
     <div style="display:flex;align-items:baseline;justify-content:space-between;margin-top:18px"><div class="sub">Densidad de corriente j (fijada)</div><div id="vV" style="font:700 40px var(--fb);font-variant-numeric:tabular-nums"></div></div>
     <div style="display:flex;justify-content:flex-end;gap:22px;margin-top:2px;font:500 19px var(--fb);color:var(--muted);font-variant-numeric:tabular-nums"><span id="vI"></span><span id="vU"></span></div>
-    <div class="phases" id="niPh" style="margin-top:14px"><span data-k="0">Insuficiente</span><span data-k="1">Lento</span><span data-k="3">Exceso</span><span data-k="4">Quemado</span><span data-k="2">Óptimo</span></div>
+    <div class="phases click nonav" id="niPh" data-a="ni" style="margin-top:14px"><span data-k="0">Insuficiente</span><span data-k="1">Lento</span><span data-k="3">Exceso</span><span data-k="4">Quemado</span><span data-k="2">Óptimo</span></div>
+    <div class="actl nonav" data-a="ni"><button data-act="prev">‹ Anterior</button><button data-act="next">Siguiente ›</button><button data-act="play" class="play">↻ Reproducir</button><span class="hint">o haz clic en una etiqueta</span></div>
   </div>
   <div class="r" style="--d:2;position:absolute;right:80px;top:220px;width:600px">
     <svg id="ivChart" width="600" height="260" viewBox="0 0 600 260"></svg>
@@ -299,7 +307,8 @@ body.static .active .draw{stroke-dashoffset:0}
       <div class="tile"><div class="k">I = j · A</div><div class="v" id="ciI"></div></div>
       <div class="tile"><div class="k">V resultante*</div><div class="v" id="ciU"></div></div>
     </div>
-    <div class="phases" id="crPh" style="margin-top:14px"><span data-k="o">Opaco</span><span data-k="q">Quemado</span><span data-k="t">Alta T</span><span data-k="b">Óptimo</span></div>
+    <div class="phases click nonav" id="crPh" data-a="cr" style="margin-top:14px"><span data-k="o">Opaco</span><span data-k="q">Quemado</span><span data-k="t">Alta T</span><span data-k="b">Óptimo</span></div>
+    <div class="actl nonav" data-a="cr"><button data-act="prev">‹ Anterior</button><button data-act="next">Siguiente ›</button><button data-act="play" class="play">↻ Reproducir</button><span class="hint">o haz clic en una etiqueta</span></div>
   </div>
   <div class="r" style="--d:2;position:absolute;right:80px;top:200px;width:600px">
     <svg id="crMap" width="600" height="387" viewBox="0 0 760 490"></svg>
@@ -353,6 +362,28 @@ body.static .active .draw{stroke-dashoffset:0}
     <div class="card r" style="--d:2"><h3>Ánodo inerte</h3><p>El cromo metálico se pasiva en ácido crómico. Se usa plomo, que no aporta iones; el Cr se repone desde el CrO₃ del baño.</p></div>
     <div class="card r" style="--d:3"><h3>Baja eficiencia</h3><p>La reducción Cr⁶⁺ → Cr⁰ requiere 6 e⁻ y la eficiencia catódica es de 10–15 %. Rango usual: 15–30 A/dm² a 45–55 °C.</p></div>
     <div class="card r" style="--d:4"><h3>Catalizador</h3><p>H₂SO₄ en relación CrO₃ : SO₄²⁻ ≈ 100 : 1.</p></div>
+  </div>
+</section>
+
+<!-- 9b ANODO Pb vs GRAFITO -->
+<section class="slide" data-block="02 · Niquelado y cromado">
+  <h2 class="r">Ánodo de plomo frente a grafito</h2>
+  <style>.an td{padding:11px 14px;font-size:19px;line-height:1.35;vertical-align:top}.an th{font-size:16px;text-transform:none;letter-spacing:0}.an td:first-child{font-weight:600;color:var(--ink);width:22%}.an .pb{background:rgba(59,91,136,.06)}</style>
+  <table class="t an r" style="--d:1;position:absolute;left:80px;top:200px;width:1000px">
+    <tr><th></th><th class="cr">Plomo (Pb–Sn o Pb–Sb)</th><th>Grafito</th></tr>
+    <tr><td>Superficie en el baño</td><td class="pb">Se cubre de PbO₂, conductor y estable en ácido crómico</td><td>El O₂ anódico y el ácido crómico lo oxidan a CO₂: se erosiona</td></tr>
+    <tr><td>Cr³⁺ → Cr⁶⁺</td><td class="pb">El PbO₂ reoxida el Cr³⁺ que se forma en el cátodo</td><td>Casi no lo reoxida; además el carbono reduce Cr⁶⁺ a Cr³⁺</td></tr>
+    <tr><td>Efecto en el baño</td><td class="pb">Cr³⁺ se mantiene bajo y el baño es estable</td><td>Se acumula Cr³⁺: baja la conductividad y se angosta el rango brillante</td></tr>
+    <tr><td>Efecto en el depósito</td><td class="pb">Cromo brillante y uniforme</td><td>Cromo opaco o quemado; partículas de carbón causan rugosidad</td></tr>
+    <tr><td>Desgaste</td><td class="pb">Lento; forma lodo de PbCrO₄ si queda en el baño sin corriente</td><td>Se desmorona y contamina el baño</td></tr>
+    <tr><td>Uso típico</td><td class="pb">Baños de Cr(VI), como el de la práctica</td><td>Baños de Cr(III)</td></tr>
+  </table>
+  <div class="r" style="--d:2;position:absolute;right:80px;top:200px;width:380px;display:flex;flex-direction:column;gap:14px">
+    <figure class="photo" style="height:300px"><img src="assets/montaje.jpg" alt="" style="object-position:62% 70%"><figcaption>Ánodo de Pb de la práctica: capa negra de PbO₂</figcaption></figure>
+    <div class="card" style="padding:18px 22px"><div class="sub" style="font-size:16px">Reacciones en el ánodo de Pb</div>
+      <p style="font-size:18px;margin-top:8px;color:var(--ink)">2H₂O → O₂ + 4H⁺ + 4e⁻</p>
+      <p style="font-size:18px;margin-top:4px;color:var(--ink)">2Cr³⁺ + 7H₂O → Cr₂O₇²⁻ + 14H⁺ + 6e⁻</p></div>
+    <p style="font-size:18px">Se usa una relación de área ánodo : cátodo cercana a 2 : 1 para que la reoxidación del Cr³⁺ sea suficiente.</p>
   </div>
 </section>
 
@@ -522,7 +553,7 @@ body.static .active .draw{stroke-dashoffset:0}
 <section class="slide" data-block="03 · Resultados" data-anim="short">
   <h2 class="r">Contacto entre electrodos</h2>
   <div class="r" style="--d:1;position:absolute;left:80px;top:215px;width:780px">
-    <div class="phases" style="margin-bottom:16px"><span id="scN" class="on">Operación normal</span><span id="scS">Electrodos en contacto</span></div>
+    <div style="display:flex;gap:14px;align-items:center;margin-bottom:16px"><div class="phases click nonav" data-a="sc"><span id="scN" class="on">Operación normal</span><span id="scS">Electrodos en contacto</span></div><div class="actl nonav" data-a="sc" style="margin-top:0"><button data-act="play" class="play">↻ Reproducir</button></div></div>
     <svg id="scSvg" width="780" height="480" viewBox="0 0 760 450"></svg>
   </div>
   <div style="position:absolute;right:80px;top:215px;width:600px" id="scText"></div>
@@ -590,7 +621,7 @@ const fmt=(x,d=1)=>x.toLocaleString('es-CO',{minimumFractionDigits:d,maximumFrac
 function go(n){
   n=Math.max(0,Math.min(slides.length-1,n));
   slides.forEach((s,i)=>{s.classList.toggle('active',i===n);s.classList.toggle('past',i<n);});
-  if(n!==cur)enterT=performance.now();
+  if(n!==cur){enterT=performance.now();if(typeof ANIM!=='undefined')Object.values(ANIM).forEach(a=>a.manual=false);}
   cur=n;
   document.getElementById('progress').style.width=(n/(slides.length-1)*100)+'%';
   document.getElementById('count').textContent=String(n+1).padStart(2,'0')+' / '+slides.length;
@@ -764,9 +795,9 @@ function tick(){
   if(cur===iCell)cellTick(performance.now());else cellSt.last=0;
   if(cur===iCr){bubs.forEach(b=>{b.y-=b.v;b.x+=Math.sin(b.y/12)*.4;if(b.y<60){b.y=360;b.x=450+Math.random()*30;}b.c.setAttribute('cx',b.x);b.c.setAttribute('cy',b.y);});}
   const el_t=(performance.now()-enterT)/1000;
-  if(cur===iShort){const m=Math.floor(el_t/6)%2?'s':'n';if(m!==scMode){scMode=m;scPills();scBuild();}scTick();}
-  if(cur===iNi){const [V]=seq(NIK,el_t);niV=V;niUI();drawNi();}
-  if(cur===iMap){const [ci,cT]=seq(CRK,el_t);crUI(ci,cT,el_t);}
+  if(cur===iShort){if(!ANIM.sc.manual){const m=Math.floor(el_t/6)%2?'s':'n';if(m!==scMode){scMode=m;scPills();scBuild();}}scTick();}
+  if(cur===iNi){const [V]=animVal(ANIM.ni,el_t);niV=V;niUI();drawNi();}
+  if(cur===iMap){const [ci,cT]=animVal(ANIM.cr,el_t);crUI(ci,cT,ANIM.cr.manual?99:el_t);}
   requestAnimationFrame(tick);
 }
 
@@ -914,6 +945,20 @@ function scText(){const box=document.getElementById('scText');
   `<div class="card" style="border-color:var(--hot)"><span class="tag hot">Electrodos en contacto</span><ul class="clean" style="margin-top:14px"><li>La corriente pasa directamente del ánodo a la lámina y no por el baño. En ese intervalo no hay depósito.</li><li>La corriente se concentra en el punto de contacto y lo calienta por efecto Joule.</li><li>El área de contacto queda con un color y un espesor distintos al resto: la marca en forma de D.</li></ul></div>`;}
 function scPills(){document.getElementById('scN').classList.toggle('on',scMode==='n');document.getElementById('scS').classList.toggle('on',scMode==='s');}
 scBuild();
+/* navegación manual de animaciones: clic en etiquetas, anterior, siguiente, reproducir */
+const ANIM={ni:{keys:NIK,ph:[[.9],[1.7],[6.2],[9],[3.0]],sc:[10],manual:false,last:[.9],idx:0},
+  cr:{keys:CRK,ph:[[10,50],[48,46],[40,72],[22,50]],sc:[50,40],manual:false,last:[10,50],idx:0},
+  sc:{manual:false}};
+function animVal(a,el_t){if(!a.manual){a.last=seq(a.keys,el_t);return a.last;}
+  const f=ease(Math.min(1,(performance.now()-a.t0)/1100));a.last=a.from.map((v,i)=>v+(a.to[i]-v)*f);return a.last;}
+function animNear(a){let b=0,bd=1e9;a.ph.forEach((p,i)=>{const d=p.reduce((s,v,k)=>s+Math.abs(v-a.last[k])/a.sc[k],0);if(d<bd){bd=d;b=i;}});return b;}
+function animGo(a,idx){const n=a.ph.length;a.idx=(idx+n)%n;a.from=a.last.slice();a.to=a.ph[a.idx].slice();a.t0=performance.now();a.manual=true;}
+document.querySelectorAll('.phases.click').forEach(box=>{box.addEventListener('click',e=>{const sp=e.target.closest('span');if(!sp)return;const k=box.dataset.a;
+  if(k==='sc'){ANIM.sc.manual=true;scMode=sp.id==='scS'?'s':'n';scPills();scBuild();return;}
+  const i=[...box.children].indexOf(sp);animGo(ANIM[k],i);});});
+document.querySelectorAll('.actl').forEach(box=>{box.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const k=box.dataset.a,act=b.dataset.act;b.blur();
+  if(act==='play'){ANIM[k].manual=false;enterT=performance.now();if(k==='sc'){scMode='n';scPills();scBuild();}return;}
+  const a=ANIM[k];const base=a.manual?a.idx:animNear(a);animGo(a,base+(act==='next'?1:-1));});});
 
 go(Math.max(0,(parseInt(location.hash.slice(1))||1)-1));
 requestAnimationFrame(tick);
