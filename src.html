@@ -1,0 +1,699 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Electrodeposición Ni/Cr</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#FBFAF7; --paper2:#F4F2EC; --ink:#16181D; --ink2:#33363D; --muted:#62666E; --line:#E3DFD6;
+  --cu:#B8643A; --cu2:#E9C9B4; --cu-soft:#F6EAE1;
+  --ni:#4F7A6C; --ni2:#B9D0C7; --ni-soft:#E6EFEB;
+  --cr:#3B5B88; --cr2:#B7C6DC; --cr-soft:#E5EAF2;
+  --hot:#C6452D; --hot-soft:#F8E3DD; --ok:#2E8B57; --ok-soft:#E1F1E7; --amb:#C98B1B; --amb-soft:#F8EED9;
+  --fd:'Space Grotesk',system-ui,sans-serif; --fb:'Inter',system-ui,sans-serif; --fm:'JetBrains Mono',ui-monospace,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:#E9E6DF;overflow:hidden;font-family:var(--fb);color:var(--ink)}
+body.presenting{background:#000}
+body.presenting.idle{cursor:none}
+#viewport{position:fixed;inset:0;display:grid;place-items:center}
+#stage{width:1600px;height:900px;position:relative;background:var(--paper);overflow:hidden;transform-origin:center center;box-shadow:0 30px 80px rgba(40,30,20,.18)}
+#relief{position:absolute;inset:0;pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='38'%3E%3Cdefs%3E%3CradialGradient id='g' cx='38%25' cy='34%25' r='70%25'%3E%3Cstop offset='0' stop-color='%23ffffff'/%3E%3Cstop offset='.55' stop-color='%23F3F0EA'/%3E%3Cstop offset='1' stop-color='%23E4DFD5'/%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx='11' cy='9.5' r='8' fill='url(%23g)'/%3E%3Ccircle cx='33' cy='28.5' r='8' fill='url(%23g)'/%3E%3C/svg%3E");
+  -webkit-mask-image:radial-gradient(ellipse 75% 85% at 32% 45%,transparent 38%,#000 92%);mask-image:radial-gradient(ellipse 75% 85% at 32% 45%,transparent 38%,#000 92%);opacity:.9}
+#relief2{position:absolute;inset:0;pointer-events:none;opacity:.5;
+  background:radial-gradient(900px 500px at 105% -10%,rgba(184,100,58,.10),transparent 60%),radial-gradient(700px 500px at -5% 110%,rgba(59,91,136,.08),transparent 60%)}
+#progress{position:absolute;left:0;top:0;height:5px;background:linear-gradient(90deg,var(--cu),var(--ni),var(--cr));transition:width .6s cubic-bezier(.6,0,.2,1);z-index:20}
+#chip{position:absolute;left:80px;top:36px;font:600 15px/1 var(--fd);letter-spacing:.14em;text-transform:uppercase;color:var(--muted);z-index:20;display:flex;gap:10px;align-items:center;transition:opacity .4s}
+#chip i{width:9px;height:9px;border-radius:50%;background:var(--cu);display:inline-block}
+#count{position:absolute;right:80px;bottom:30px;font:500 16px var(--fm);color:var(--muted);z-index:20}
+#minilogo{position:absolute;left:80px;bottom:26px;height:34px;opacity:.85;z-index:20;transition:opacity .4s}
+#present{position:absolute;right:80px;top:26px;z-index:30;font:600 15px var(--fd);padding:9px 16px;border-radius:999px;border:1.5px solid var(--ink);background:#fff;cursor:pointer;display:flex;gap:8px;align-items:center}
+body.presenting #present{display:none}
+.slide{position:absolute;inset:0;padding:96px 80px 80px;opacity:0;visibility:hidden;transform:translateX(60px);transition:opacity .7s cubic-bezier(.4,0,.2,1),transform .8s cubic-bezier(.4,0,.2,1),visibility 0s .8s}
+.slide.active{opacity:1;visibility:visible;transform:none;transition:opacity .7s cubic-bezier(.4,0,.2,1) .1s,transform .8s cubic-bezier(.2,.7,.2,1) .1s,visibility 0s}
+.slide.past{transform:translateX(-60px)}
+.r{opacity:0;transform:translateY(18px);transition:opacity .6s ease,transform .7s cubic-bezier(.2,.7,.2,1)}
+.active .r{opacity:1;transform:none;transition-delay:calc(.25s + var(--d,0) * .12s)}
+.kick{font:600 16px var(--fd);letter-spacing:.16em;text-transform:uppercase;color:var(--cu);margin-bottom:12px}
+h1{font:700 76px/1.02 var(--fd);letter-spacing:-.03em}
+h2{font:700 54px/1.06 var(--fd);letter-spacing:-.025em;max-width:1200px}
+h3{font:600 27px/1.2 var(--fd);letter-spacing:-.01em}
+p,li{font-size:23px;line-height:1.45;color:var(--ink2)}
+.lead{font-size:27px;line-height:1.45;color:var(--ink2);max-width:900px}
+.sub{color:var(--muted);font-size:19px}
+.mono{font-family:var(--fm)}
+.cu{color:var(--cu)}.ni{color:var(--ni)}.cr{color:var(--cr)}.hot{color:var(--hot)}.ok{color:var(--ok)}
+.row{display:flex;gap:40px}
+.card{background:rgba(255,255,255,.86);border:1px solid var(--line);border-radius:18px;padding:28px 30px;box-shadow:0 1px 0 #fff inset,0 10px 30px -18px rgba(60,40,20,.25)}
+.card h3{margin-bottom:12px}
+.card p,.card li{font-size:21px}
+.tag{display:inline-flex;align-items:center;gap:8px;font:600 15px var(--fd);letter-spacing:.06em;text-transform:uppercase;padding:7px 14px;border-radius:999px;background:var(--paper2);color:var(--ink2)}
+.tag.ni{background:var(--ni-soft);color:var(--ni)}.tag.cr{background:var(--cr-soft);color:var(--cr)}.tag.cu{background:var(--cu-soft);color:var(--cu)}.tag.hot{background:var(--hot-soft);color:var(--hot)}.tag.ok{background:var(--ok-soft);color:var(--ok)}.tag.amb{background:var(--amb-soft);color:var(--amb)}
+ul.clean{list-style:none}ul.clean li{padding-left:28px;position:relative;margin:10px 0}
+ul.clean li:before{content:"";position:absolute;left:4px;top:.6em;width:10px;height:10px;border-radius:2px;transform:rotate(45deg);background:var(--cu)}
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;margin:0 6px;white-space:nowrap}
+.frac>span{padding:0 6px}.frac>span:first-child{border-bottom:2.5px solid currentColor;padding-bottom:4px}.frac>span:last-child{padding-top:4px}
+.formula{font:500 38px var(--fm);color:var(--ink);display:flex;align-items:center;gap:6px;white-space:nowrap;flex-wrap:nowrap}
+.big-num{font:700 64px/1 var(--fd);letter-spacing:-.03em}
+.photo{border-radius:14px;overflow:hidden;position:relative;background:#ddd;box-shadow:0 18px 40px -20px rgba(30,20,10,.45);border:6px solid #fff;margin:0}
+.photo img,.photo video{display:block;width:100%;height:100%;object-fit:cover}
+.photo figcaption{position:absolute;left:0;right:0;bottom:0;padding:30px 16px 12px;font:500 18px var(--fb);color:#fff;background:linear-gradient(transparent,rgba(0,0,0,.7))}
+.range{width:100%;-webkit-appearance:none;appearance:none;height:7px;border-radius:6px;background:var(--line);outline:none}
+.range::-webkit-slider-thumb{-webkit-appearance:none;width:26px;height:26px;border-radius:50%;background:#fff;border:3px solid var(--ink);cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.2)}
+.range::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:#fff;border:3px solid var(--ink);cursor:pointer}
+.ctl{margin:16px 0}.ctl label{display:flex;justify-content:space-between;font:600 18px var(--fd);color:var(--ink2);margin-bottom:10px}
+.ctl label b{font:600 20px var(--fm);color:var(--ink)}
+.btn{font:600 17px var(--fd);padding:10px 18px;border-radius:999px;border:1.5px solid var(--ink);background:#fff;cursor:pointer;color:var(--ink)}
+.btn.on{background:var(--ink);color:#fff}
+table.t{border-collapse:collapse;width:100%;font-size:21px}
+table.t th{font:600 15px var(--fd);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);text-align:left;padding:12px 16px;border-bottom:2px solid var(--ink)}
+table.t td{padding:15px 16px;border-bottom:1px solid var(--line);color:var(--ink2)}
+.note{font-size:18px;color:var(--muted);line-height:1.45}
+svg text{font-family:var(--fb)}
+.draw{stroke-dasharray:var(--len,1200);stroke-dashoffset:var(--len,1200)}
+.active .draw{animation:draw 1.6s cubic-bezier(.6,0,.2,1) forwards;animation-delay:calc(.4s + var(--d,0)*.15s)}
+@keyframes draw{to{stroke-dashoffset:0}}
+.flow{display:grid;grid-template-columns:repeat(5,1fr);gap:26px 20px}
+.step{position:relative;background:#fff;border:1px solid var(--line);border-radius:16px;padding:24px 22px 22px 28px;min-height:280px;opacity:0;transform:scale(.92)}
+.active .step{animation:pop .55s cubic-bezier(.2,.9,.3,1.2) forwards;animation-delay:calc(.35s + var(--i)*.22s)}
+@keyframes pop{to{opacity:1;transform:none}}
+.step .n{font:700 17px var(--fm);color:var(--muted)}
+.step h4{font:600 27px/1.15 var(--fd);margin:10px 0 10px}
+.step p{font-size:21px;line-height:1.4;color:var(--ink2)}
+.step .bar{position:absolute;left:0;top:0;bottom:0;width:6px;border-radius:16px 0 0 16px}
+.step.crit{border-color:var(--hot);box-shadow:0 0 0 3px var(--hot-soft)}
+.step:after{content:"→";position:absolute;right:-17px;top:50%;transform:translateY(-50%);font:600 20px var(--fd);color:#B8B2A6}
+.step:nth-child(5n):after,.step:last-child:after{display:none}
+.effbar{height:100%;display:flex;align-items:center;padding:0 20px;font:600 19px var(--fd);white-space:nowrap;overflow:hidden;width:0;transition:width 1.4s cubic-bezier(.6,0,.2,1) .7s}
+.active .effbar{width:var(--w)}
+.layer{opacity:0;transform:translateY(-30px);transition:opacity .7s,transform .8s cubic-bezier(.2,.8,.2,1)}
+.active .layer{opacity:1;transform:none;transition-delay:calc(.3s + var(--d)*.18s)}
+.phases{display:flex;gap:8px;flex-wrap:wrap}.phases span{font:600 17px var(--fd);padding:9px 16px;border-radius:999px;border:1.5px solid var(--line);color:var(--muted);background:#fff;transition:all .35s}.phases span.on{background:var(--ink);border-color:var(--ink);color:#fff}.phases span.ok.on{background:var(--ok);border-color:var(--ok)}
+body.static *{transition:none!important;animation:none!important}
+body.static .active .step{opacity:1;transform:none}
+body.static .active .draw{stroke-dashoffset:0}
+</style>
+</head>
+<body>
+<div id="viewport"><div id="stage">
+<div id="relief2"></div><div id="relief"></div>
+<div id="progress"></div>
+<div id="chip"><i></i><span id="chiptxt"></span></div>
+<button id="present" title="Pantalla completa (tecla P)"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 5V1h4M11 1h4v4M15 11v4h-4M5 15H1v-4"/></svg>Modo presentación</button>
+<img id="minilogo" src="assets/logo_uis.png" alt="UIS">
+<div id="count"></div>
+
+<!-- 1 PORTADA -->
+<section class="slide" data-block="">
+  <div style="position:absolute;left:80px;top:90px" class="r"><img src="assets/logo_uis.png" style="height:96px" alt="Universidad Industrial de Santander"></div>
+  <div style="position:absolute;left:80px;top:265px;width:880px">
+    <div class="kick r" style="--d:1">Hidro y Electrometalurgia · Práctica libre</div>
+    <h1 class="r" style="--d:2;font-size:98px">Electrodeposición de <span class="ni">níquel</span> y <span class="cr">cromo</span></h1>
+    <p class="lead r" style="--d:3;margin-top:24px">Recubrimiento Ni/Cr sobre lámina de cobre</p>
+    <div class="r" style="--d:4;margin-top:48px">
+      <div class="sub">Integrantes</div>
+      <div style="font:600 25px var(--fd);margin-top:8px;line-height:1.5">J. Gabriel Franco<br>Deivis Orlando Jiménez<br>Fabián Yesid Rivera</div>
+    </div>
+  </div>
+  <svg class="r" style="--d:2;position:absolute;right:110px;top:150px" width="520" height="640" viewBox="-80 0 520 640">
+    <defs>
+      <linearGradient id="gcu" x1="0" x2="1"><stop offset="0" stop-color="#C8784C"/><stop offset=".5" stop-color="#E7A47B"/><stop offset="1" stop-color="#A9552D"/></linearGradient>
+      <linearGradient id="gni" x1="0" x2="1"><stop offset="0" stop-color="#7C8784"/><stop offset=".5" stop-color="#B8C2BE"/><stop offset="1" stop-color="#6A7471"/></linearGradient>
+      <linearGradient id="gcr" x1="0" x2="1"><stop offset="0" stop-color="#8FA3BF"/><stop offset=".45" stop-color="#F1F5FA"/><stop offset="1" stop-color="#7F93AF"/></linearGradient>
+    </defs>
+    <g transform="translate(170 20)">
+      <rect x="0" y="0" width="160" height="590" rx="6" fill="url(#gcu)"/>
+      <rect x="-6" y="330" width="172" height="260" rx="8" fill="url(#gni)"/>
+      <rect x="-10" y="410" width="180" height="180" rx="10" fill="url(#gcr)"/>
+      <path d="M-24 120 h-40" stroke="#B8643A" stroke-width="2"/><text x="-72" y="126" text-anchor="end" font-size="21" fill="#B8643A" font-weight="600">Cu</text>
+      <path d="M-24 360 h-40" stroke="#4F7A6C" stroke-width="2"/><text x="-72" y="366" text-anchor="end" font-size="21" fill="#4F7A6C" font-weight="600">Ni</text>
+      <path d="M-24 460 h-40" stroke="#3B5B88" stroke-width="2"/><text x="-72" y="466" text-anchor="end" font-size="21" fill="#3B5B88" font-weight="600">Cr</text>
+    </g>
+  </svg>
+  <div class="r sub" style="--d:5;position:absolute;left:80px;bottom:70px">Universidad Industrial de Santander · Noviembre 2026</div>
+</section>
+
+<!-- 2 CONTENIDO -->
+<section class="slide" data-block="Contenido">
+  <h2 class="r">Contenido</h2>
+  <style>.toc li{font-size:30px;margin:26px 0}.toc h3{font-size:36px}.toc .card{padding:34px 34px}</style>
+  <div class="row toc" style="margin-top:60px;gap:28px;height:560px">
+    <div class="card r" style="--d:1;flex:1;border-top:6px solid var(--cu)"><div class="mono sub">01</div><h3 style="margin-top:10px">Fundamentos</h3><ul class="clean"><li>Celda electrolítica</li><li>Ley de Faraday</li><li>Efecto del voltaje y la corriente</li></ul></div>
+    <div class="card r" style="--d:2;flex:1;border-top:6px solid var(--ni)"><div class="mono sub">02</div><h3 style="margin-top:10px">Niquelado y cromado</h3><ul class="clean"><li>Baño de níquel</li><li>Baño de cromo</li><li>Eficiencia de corriente</li><li>Orden de las capas</li></ul></div>
+    <div class="card r" style="--d:3;flex:1;border-top:6px solid var(--cr)"><div class="mono sub">03</div><h3 style="margin-top:10px">Práctica</h3><ul class="clean"><li>Diagrama de flujo y montaje</li><li>Parámetros y masas</li><li>Cálculos</li><li>Patrón en la zona cromada</li><li>Conclusiones</li></ul></div>
+  </div>
+</section>
+
+<!-- 4 CELDA -->
+<section class="slide" data-block="01 · Fundamentos" data-anim="cell">
+  <h2 class="r">Celda electrolítica</h2>
+  <svg class="r" style="--d:1;position:absolute;left:80px;top:220px" width="900" height="580" viewBox="0 0 900 560">
+    <defs><linearGradient id="bath" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#CFE3DB"/><stop offset="1" stop-color="#A9CBBE"/></linearGradient></defs>
+    <rect x="345" y="10" width="210" height="72" rx="12" fill="#16181D"/>
+    <text x="450" y="44" fill="#fff" font-family="JetBrains Mono" font-size="20" text-anchor="middle">FUENTE DC</text>
+    <text x="450" y="68" fill="#9FE3B8" font-family="JetBrains Mono" font-size="16" text-anchor="middle">2,0 V</text>
+    <text x="368" y="106" font-size="24" font-weight="700" fill="#C6452D">+</text><text x="522" y="106" font-size="28" font-weight="700" fill="#3B5B88">−</text>
+    <path d="M380 82 V120 H210 V170" stroke="#C6452D" stroke-width="4" fill="none"/>
+    <path d="M520 82 V120 H690 V170" stroke="#3B5B88" stroke-width="4" fill="none"/>
+    <path d="M120 170 V470 Q120 500 150 500 H750 Q780 500 780 470 V170" fill="url(#bath)" stroke="#8C9A95" stroke-width="3"/>
+    <rect x="185" y="150" width="50" height="300" rx="5" fill="#7C8784"/><text x="210" y="140" text-anchor="middle" font-family="Space Grotesk" font-weight="700" font-size="21" fill="#33363D">Ánodo (+)</text>
+    <rect x="665" y="150" width="50" height="300" rx="5" fill="#C8784C"/><text x="690" y="140" text-anchor="middle" font-family="Space Grotesk" font-weight="700" font-size="21" fill="#33363D">Cátodo (−)</text>
+    <rect x="660" y="300" width="60" height="150" rx="6" fill="#8E9A96" opacity="0" id="cathCoat"/>
+    <g id="ions"></g><g id="elec"></g>
+    <text x="450" y="540" text-anchor="middle" font-size="19" fill="#62666E">Ni²⁺ migra al cátodo; los electrones circulan por el circuito externo</text>
+  </svg>
+  <div style="position:absolute;right:80px;top:230px;width:520px;display:flex;flex-direction:column;gap:20px">
+    <div class="card r" style="--d:2"><span class="tag hot">Ánodo · oxidación</span><p class="mono" style="margin-top:14px;font-size:26px;color:var(--ink)">Ni → Ni²⁺ + 2e⁻</p><p style="margin-top:8px;font-size:19px">El ánodo se disuelve y repone el Ni²⁺ del baño.</p></div>
+    <div class="card r" style="--d:3"><span class="tag cr">Cátodo · reducción</span><p class="mono" style="margin-top:14px;font-size:26px;color:var(--ink)">Ni²⁺ + 2e⁻ → Ni<sub>(s)</sub></p><p style="margin-top:8px;font-size:19px">La lámina de cobre es el cátodo.</p></div>
+    <div class="card r" style="--d:4"><span class="tag amb">Reacción secundaria</span><p class="mono" style="margin-top:14px;font-size:26px;color:var(--ink)">2H⁺ + 2e⁻ → H₂↑</p><p style="margin-top:8px;font-size:19px">Consume parte de la corriente.</p></div>
+  </div>
+</section>
+
+<!-- 5 FARADAY -->
+<section class="slide" data-block="01 · Fundamentos">
+  <h2 class="r">Ley de Faraday</h2>
+  <div class="r" style="--d:1;position:absolute;left:80px;top:230px;width:680px">
+    <div class="formula" style="font-size:52px">m =<span class="frac"><span>M · I · t</span><span>n · F</span></span>· η</div>
+    <div style="margin-top:38px;display:grid;grid-template-columns:90px 1fr;gap:14px 20px;font-size:22px;color:var(--ink2)">
+      <b class="mono">M</b><span>Masa molar: Ni 58,69 · Cr 52,00 g/mol</span>
+      <b class="mono">I · t</b><span>Carga Q (A·s = C)</span>
+      <b class="mono">n</b><span>Electrones: Ni²⁺ → 2 · Cr⁶⁺ → 6</span>
+      <b class="mono">F</b><span>96 485 C/mol</span>
+      <b class="mono">η</b><span>Eficiencia: Ni ≈ 95 % · Cr ≈ 10–15 %</span>
+    </div>
+  </div>
+  <div class="card r" style="--d:2;position:absolute;right:80px;top:220px;width:640px;border-top:6px solid var(--ni)">
+    <span class="tag ni">Ejemplo · niquelado</span>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin:22px 0 10px">
+      <div><div class="sub">i (ref.)</div><div class="mono" style="font-size:28px;font-weight:600">3 A/dm²</div></div>
+      <div><div class="sub">Área</div><div class="mono" style="font-size:28px;font-weight:600">0,201 dm²</div></div>
+      <div><div class="sub">I</div><div class="mono" style="font-size:28px;font-weight:600">0,60 A</div></div>
+    </div>
+    <div class="formula" style="font-size:24px;margin-top:20px">m =<span class="frac"><span>58,69 · 0,60 · 900</span><span>2 · 96 485</span></span>· 0,95</div>
+    <div style="display:flex;align-items:baseline;gap:14px;margin-top:22px"><div class="big-num ni" style="font-size:60px">0,156 g</div><div class="sub">en 15 min</div></div>
+    <p style="margin-top:14px;font-size:20px">Masa medida en la práctica: <b>0,152 g</b>.</p>
+  </div>
+</section>
+
+<!-- 6 SIMULADOR VOLTAJE -->
+<section class="slide" data-block="01 · Fundamentos" data-anim="ni">
+  <h2 class="r">Efecto del voltaje en el niquelado</h2>
+  <div class="r" style="--d:1;position:absolute;left:80px;top:220px;width:760px">
+    <canvas id="niCanvas" width="1520" height="700" style="width:760px;height:350px;border-radius:16px;border:1px solid var(--line);background:#fff"></canvas>
+    <div style="display:flex;align-items:baseline;justify-content:space-between;margin-top:20px"><div class="sub">Voltaje de la celda</div><div class="mono" id="vV" style="font-size:40px;font-weight:600"></div></div>
+    <div class="phases" id="niPh" style="margin-top:14px"><span data-k="0">Insuficiente</span><span data-k="1">Lento</span><span data-k="3">Exceso</span><span data-k="4">Quemado</span><span data-k="2">Óptimo</span></div>
+  </div>
+  <div class="r" style="--d:2;position:absolute;right:80px;top:220px;width:600px">
+    <svg id="ivChart" width="600" height="260" viewBox="0 0 600 260"></svg>
+    <div class="card" id="niState" style="margin-top:14px;min-height:270px"></div>
+  </div>
+</section>
+
+<!-- 7 SIMULADOR Cr -->
+<section class="slide" data-block="01 · Fundamentos" data-anim="crmap">
+  <h2 class="r">Corriente y temperatura en el cromado</h2>
+  <div class="r" style="--d:1;position:absolute;left:80px;top:215px;width:800px">
+    <svg id="crMap" width="800" height="520" viewBox="0 0 760 490"></svg>
+  </div>
+  <div class="r" style="--d:2;position:absolute;right:80px;top:220px;width:580px">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+      <div class="card" style="padding:20px 24px"><div class="sub">Densidad de corriente</div><div class="mono" id="ciV" style="font-size:34px;font-weight:600;margin-top:6px"></div></div>
+      <div class="card" style="padding:20px 24px"><div class="sub">Temperatura</div><div class="mono" id="cTV" style="font-size:34px;font-weight:600;margin-top:6px"></div></div>
+    </div>
+    <div class="phases" id="crPh" style="margin:18px 0"><span data-k="o">Opaco</span><span data-k="q">Quemado</span><span data-k="t">Alta T</span><span data-k="b">Óptimo</span></div>
+    <div class="card" id="crState" style="min-height:250px"></div>
+  </div>
+  <p class="note r" style="--d:3;position:absolute;left:80px;bottom:66px">Baño CrO₃/H₂SO₄ (100:1). Al subir la temperatura, el rango brillante se desplaza a corrientes mayores.</p>
+</section>
+
+<!-- 8 NIQUELADO -->
+<section class="slide" data-block="02 · Niquelado y cromado">
+  <h2 class="r">Baño de niquelado</h2>
+  <svg class="r" style="--d:1;position:absolute;left:80px;top:230px" width="640" height="560" viewBox="0 0 640 500">
+    <path d="M60 80 V400 Q60 430 90 430 H550 Q580 430 580 400 V80" fill="#DCEBE4" stroke="#4F7A6C" stroke-width="3"/>
+    <rect x="110" y="40" width="56" height="320" rx="6" fill="#7C8784"/><text x="138" y="26" text-anchor="middle" font-family="Space Grotesk" font-weight="700" font-size="21">Ánodo Ni</text>
+    <rect x="470" y="40" width="56" height="320" rx="6" fill="#C8784C"/><rect x="465" y="200" width="66" height="160" rx="6" fill="#8E9A96"/><text x="498" y="26" text-anchor="middle" font-family="Space Grotesk" font-weight="700" font-size="21">Lámina Cu</text>
+    <g font-family="JetBrains Mono" font-size="21" fill="#4F7A6C">
+      <text x="200" y="170">Ni²⁺ →</text><text x="300" y="230">Ni²⁺ →</text><text x="220" y="300">Ni²⁺ →</text><text x="330" y="355">Cl⁻ ←</text>
+    </g>
+    <text x="320" y="476" text-anchor="middle" font-size="20" fill="#62666E">Ánodo soluble</text>
+  </svg>
+  <div style="position:absolute;right:80px;top:230px;width:700px">
+    <table class="t r" style="--d:2">
+      <tr><th>Componente</th><th>Cantidad</th><th>Función</th></tr>
+      <tr><td>NiCl₂</td><td class="mono" style="white-space:nowrap">50 g / 500 mL</td><td>Aporta Ni²⁺; el Cl⁻ evita la pasivación del ánodo</td></tr>
+      <tr><td>NiSO₄</td><td class="mono">—</td><td>Fuente de Ni²⁺</td></tr>
+      <tr><td>H₃BO₃</td><td class="mono" style="white-space:nowrap">7 g / 500 mL</td><td>Regula el pH cerca del cátodo</td></tr>
+      <tr><td>Voltaje</td><td class="mono">2 V</td><td>—</td></tr>
+    </table>
+    <div class="row r" style="--d:3;margin-top:26px;gap:18px">
+      <div class="card" style="flex:1"><div class="sub">Ánodo</div><p class="mono" style="font-size:24px;color:var(--ink);margin-top:6px">Ni → Ni²⁺ + 2e⁻</p></div>
+      <div class="card" style="flex:1"><div class="sub">Cátodo</div><p class="mono" style="font-size:24px;color:var(--ink);margin-top:6px">Ni²⁺ + 2e⁻ → Ni</p></div>
+    </div>
+    <div class="card r" style="--d:4;margin-top:18px;background:var(--ni-soft);border-color:var(--ni2)"><p>Depósito obtenido: gris oscuro, mate y uniforme.</p></div>
+  </div>
+</section>
+
+<!-- 9 CROMADO -->
+<section class="slide" data-block="02 · Niquelado y cromado" data-anim="crbath">
+  <h2 class="r">Baño de cromado</h2>
+  <svg class="r" style="--d:1;position:absolute;left:80px;top:230px" width="640" height="560" viewBox="0 0 640 500">
+    <defs><linearGradient id="crb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E9B97A"/><stop offset="1" stop-color="#B9652D"/></linearGradient></defs>
+    <path d="M60 80 V400 Q60 430 90 430 H550 Q580 430 580 400 V80" fill="url(#crb)" fill-opacity=".55" stroke="#9C5A2C" stroke-width="3"/>
+    <rect x="110" y="40" width="56" height="320" rx="6" fill="#3B3C42"/><text x="138" y="26" text-anchor="middle" font-family="Space Grotesk" font-weight="700" font-size="21">Ánodo Pb</text>
+    <rect x="470" y="40" width="56" height="320" rx="6" fill="#C8784C"/><rect x="465" y="200" width="66" height="160" rx="6" fill="#8E9A96"/><rect x="462" y="240" width="72" height="120" rx="6" fill="#C3CEDD"/><text x="498" y="26" text-anchor="middle" font-family="Space Grotesk" font-weight="700" font-size="21">Lámina Cu/Ni</text>
+    <g id="h2bub"></g>
+    <text x="300" y="200" font-family="JetBrains Mono" font-size="21" fill="#5B2E12" text-anchor="middle">CrO₃ + H₂O → H₂CrO₄</text>
+    <text x="300" y="255" font-family="JetBrains Mono" font-size="21" fill="#5B2E12" text-anchor="middle">Cr⁶⁺ + 6e⁻ → Cr⁰</text>
+    <text x="320" y="476" text-anchor="middle" font-size="20" fill="#62666E">Desprendimiento de H₂ en el cátodo</text>
+  </svg>
+  <div style="position:absolute;right:80px;top:230px;width:700px;display:flex;flex-direction:column;gap:18px">
+    <div class="card r" style="--d:2"><h3>Ánodo inerte</h3><p>El cromo metálico se pasiva en ácido crómico. Se usa plomo, que no aporta iones; el Cr se repone desde el CrO₃ del baño.</p></div>
+    <div class="card r" style="--d:3"><h3>Baja eficiencia</h3><p>La reducción Cr⁶⁺ → Cr⁰ requiere 6 e⁻ y la eficiencia catódica es de 10–15 %. Rango usual: 15–30 A/dm² a 45–55 °C.</p></div>
+    <div class="card r" style="--d:4"><h3>Catalizador</h3><p>H₂SO₄ en relación CrO₃ : SO₄²⁻ ≈ 100 : 1.</p></div>
+  </div>
+</section>
+
+<!-- 10 EFICIENCIA -->
+<section class="slide" data-block="02 · Niquelado y cromado">
+  <h2 class="r">Eficiencia de corriente</h2>
+  <div style="position:absolute;left:80px;right:80px;top:240px">
+    <div class="r" style="--d:1;margin-bottom:50px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:14px"><h3 class="ni">Níquel</h3><span class="mono" style="font-size:24px">η ≈ 95 %</span></div>
+      <div style="height:72px;border-radius:12px;overflow:hidden;display:flex;background:var(--paper2)">
+        <div class="effbar" style="--w:95%;background:var(--ni);color:#fff">Ni depositado · 95 %</div><div class="effbar" style="--w:5%;background:var(--amb);color:#fff">H₂</div>
+      </div>
+    </div>
+    <div class="r" style="--d:2">
+      <div style="display:flex;justify-content:space-between;margin-bottom:14px"><h3 class="cr">Cromo</h3><span class="mono" style="font-size:24px">η ≈ 12 %</span></div>
+      <div style="height:72px;border-radius:12px;overflow:hidden;display:flex;background:var(--paper2)">
+        <div class="effbar" style="--w:12%;background:var(--cr);color:#fff">Cr · 12 %</div><div class="effbar" style="--w:88%;background:var(--amb);color:#fff">H₂ y reducción Cr⁶⁺ → Cr³⁺ · 88 %</div>
+      </div>
+    </div>
+    <div class="row r" style="--d:3;margin-top:60px;gap:28px">
+      <div class="card" style="flex:1"><div class="sub">Carga para depositar 1 g de Ni (η = 95 %)</div><div class="big-num ni" style="margin-top:10px">3 460 C</div></div>
+      <div class="card" style="flex:1"><div class="sub">Carga para depositar 1 g de Cr (η = 12 %)</div><div class="big-num cr" style="margin-top:10px">92 800 C</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 11 ORDEN DE CAPAS -->
+<section class="slide" data-block="02 · Niquelado y cromado">
+  <h2 class="r">¿Por qué níquel antes que cromo?</h2>
+  <svg class="r" style="--d:1;position:absolute;left:80px;top:250px" width="720" height="460" viewBox="0 0 700 440">
+    <defs><marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10z" fill="#fff"/></marker></defs>
+    <rect x="20" y="300" width="660" height="120" fill="#C8784C"/><text x="40" y="372" font-family="Space Grotesk" font-weight="700" font-size="26" fill="#fff">Cobre</text>
+    <g class="layer" style="--d:3"><rect x="20" y="200" width="660" height="100" fill="#8E9A96"/><text x="40" y="260" font-family="Space Grotesk" font-weight="700" font-size="26" fill="#fff">Níquel · 5–15 µm</text></g>
+    <g class="layer" style="--d:5"><rect x="20" y="160" width="660" height="40" fill="#C3CEDD"/>
+      <rect x="380" y="160" width="12" height="40" fill="#FBFAF7"/><rect x="510" y="160" width="12" height="40" fill="#FBFAF7"/><rect x="630" y="160" width="12" height="40" fill="#FBFAF7"/>
+      <text x="40" y="188" font-family="Space Grotesk" font-weight="700" font-size="21" fill="#3B5B88">Cromo · 0,2–1 µm</text></g>
+    <g class="layer" style="--d:7">
+      <path d="M386 50 V152" stroke="#C6452D" stroke-width="2.5" stroke-dasharray="6 6"/><text x="386" y="36" text-anchor="middle" font-size="19" fill="#C6452D" font-weight="600">Poro en el cromo</text>
+      <path d="M386 206 q 0 30 -50 40" stroke="#fff" stroke-width="3" fill="none" marker-end="url(#ar)"/>
+      <text x="410" y="90" font-size="18" fill="#33363D">El Ni se corroe primero</text>
+      <text x="410" y="114" font-size="18" fill="#33363D">y protege al cobre</text>
+    </g>
+  </svg>
+  <div style="position:absolute;right:80px;top:250px;width:640px">
+    <ul class="clean">
+      <li class="r" style="--d:3"><b>Adherencia.</b> El cromo se adhiere mal sobre cobre y bien sobre níquel.</li>
+      <li class="r" style="--d:4"><b>Barrera.</b> La capa de cromo es delgada y porosa; el níquel cubre el sustrato.</li>
+      <li class="r" style="--d:5"><b>Nivelación.</b> El níquel rellena las rayas del lijado.</li>
+      <li class="r" style="--d:6"><b>Protección en el baño.</b> El ácido crómico ataca el cobre expuesto.</li>
+      <li class="r" style="--d:7"><b>Acabado.</b> El cromo aporta dureza, brillo y resistencia al desgaste.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 12 FLUJOGRAMA -->
+<section class="slide" data-block="03 · Práctica">
+  <h2 class="r">Diagrama de flujo del proceso</h2>
+  <div class="flow" style="position:absolute;left:80px;right:80px;top:230px">
+    <div class="step" style="--i:0"><div class="bar" style="background:var(--cu)"></div><div class="n">01</div><h4>Pesaje inicial</h4><p>29,318 g</p></div>
+    <div class="step crit" style="--i:1"><div class="bar" style="background:var(--hot)"></div><div class="n">02</div><h4>Lijado y desengrase</h4><p>Retiro de óxido y grasa del cobre</p></div>
+    <div class="step" style="--i:2"><div class="bar" style="background:var(--cu)"></div><div class="n">03</div><h4>Decapado</h4><p>Activación de la superficie</p></div>
+    <div class="step" style="--i:3"><div class="bar" style="background:var(--ni)"></div><div class="n">04</div><h4>Niquelado</h4><p>NiCl₂ + NiSO₄ + H₃BO₃ · 2 V · ánodo de Ni</p></div>
+    <div class="step" style="--i:4"><div class="bar" style="background:var(--ni)"></div><div class="n">05</div><h4>Enjuague y pesaje</h4><p>29,470 g</p></div>
+    <div class="step" style="--i:5"><div class="bar" style="background:var(--amb)"></div><div class="n">06</div><h4>Lijado suave y decapado</h4><p>Preparación del níquel para el cromado</p></div>
+    <div class="step crit" style="--i:6"><div class="bar" style="background:var(--cr)"></div><div class="n">07</div><h4>Cromado</h4><p>Ácido crómico · ánodo de Pb · 70 °C · agitación · 7–10 A</p></div>
+    <div class="step" style="--i:7"><div class="bar" style="background:var(--hot)"></div><div class="n">!</div><h4>Contacto de electrodos</h4><p>Por la agitación, el ánodo tocó la lámina</p></div>
+    <div class="step" style="--i:8"><div class="bar" style="background:var(--cr)"></div><div class="n">08</div><h4>Enjuague y secado</h4><p>Residuos de Cr(VI) a disposición</p></div>
+    <div class="step" style="--i:9"><div class="bar" style="background:var(--ink)"></div><div class="n">09</div><h4>Pesaje final</h4><p>29,515 g</p></div>
+  </div>
+</section>
+
+<!-- 13 MONTAJE -->
+<section class="slide" data-block="03 · Práctica">
+  <h2 class="r">Montaje</h2>
+  <div style="position:absolute;left:80px;right:80px;top:210px;bottom:84px;display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:22px">
+    <figure class="photo r" style="--d:1"><img src="assets/montaje.jpg" alt=""><figcaption>Lámina y ánodo de Pb sujetos sobre icopor</figcaption></figure>
+    <figure class="photo r" style="--d:2"><video src="assets/montaje.mp4" autoplay muted loop playsinline></video><figcaption>Celda en operación</figcaption></figure>
+    <figure class="photo r" style="--d:3"><img src="assets/bano_cr.jpg" alt=""><figcaption>Baño en plancha con calentamiento y agitación</figcaption></figure>
+    <figure class="photo r" style="--d:4"><img src="assets/cobre_lijado.jpg" alt=""><figcaption>Cobre lijado antes del recubrimiento</figcaption></figure>
+  </div>
+</section>
+
+<!-- 14 PARAMETROS -->
+<section class="slide" data-block="03 · Práctica">
+  <h2 class="r">Parámetros de operación</h2>
+  <style>.pt td{padding:8px 16px}.pt th{padding:8px 16px}.pt td.v{font-family:var(--fm);font-size:21px;color:var(--ink);font-weight:600}.pt td.ref{font-family:var(--fm);font-size:21px;color:#8A8E95}.pt sup{font:600 13px var(--fd);color:#8A8E95;margin-left:4px;letter-spacing:.04em}</style>
+  <table class="t pt r" style="--d:1;position:absolute;left:80px;top:205px;width:1440px;font-size:21px">
+    <tr><th style="width:26%">Parámetro</th><th style="width:37%" class="ni">Niquelado</th><th class="cr">Cromado</th></tr>
+    <tr><td>Electrolito</td><td class="v">NiCl₂ 100 g/L · H₃BO₃ 14 g/L</td><td class="ref" style="white-space:nowrap">CrO₃ 250 g/L · H₂SO₄ 2,5 g/L<sup>REF</sup></td></tr>
+    <tr><td>Ánodo</td><td class="v">Níquel</td><td class="v">Plomo</td></tr>
+    <tr><td>Voltaje</td><td class="v">2 V</td><td class="ref">4–8 V<sup>REF</sup></td></tr>
+    <tr><td>Corriente</td><td class="ref">0,4–1,0 A<sup>REF</sup></td><td class="v">7–10 A</td></tr>
+    <tr><td>Densidad de corriente</td><td class="ref">2–5 A/dm²<sup>REF</sup></td><td class="v">35–50 A/dm²</td></tr>
+    <tr><td>Temperatura</td><td class="ref">45–55 °C<sup>REF</sup></td><td class="v">70 °C</td></tr>
+    <tr><td>pH</td><td class="ref">4,0–4,5<sup>REF</sup></td><td class="ref">&lt; 1<sup>REF</sup></td></tr>
+    <tr><td>Tiempo</td><td class="ref">≈ 15 min<sup>FARADAY</sup></td><td class="ref">≈ 7–10 min<sup>FARADAY</sup></td></tr>
+    <tr><td>Agitación</td><td class="ref">Suave<sup>REF</sup></td><td class="v">Magnética</td></tr>
+    <tr><td>Área recubierta</td><td class="v">20,1 cm²</td><td class="v">20,1 cm²</td></tr>
+  </table>
+  <p class="note r" style="--d:2;position:absolute;right:80px;top:118px;width:620px;text-align:right">En negro, valores registrados en la práctica. REF: valor de referencia bibliográfica. FARADAY: tiempo estimado a partir de la masa depositada.</p>
+</section>
+
+<!-- 15 MASAS -->
+<section class="slide" data-block="03 · Resultados">
+  <h2 class="r">Registro de masa de la lámina</h2>
+  <div style="position:absolute;left:80px;top:220px;width:820px">
+    <table class="t r" style="--d:1;font-size:24px">
+      <tr><th>Etapa</th><th>Masa (g)</th><th>Incremento (g)</th></tr>
+      <tr><td>Antes del niquelado</td><td class="mono">29,318</td><td class="mono">—</td></tr>
+      <tr><td>Después del niquelado</td><td class="mono">29,470</td><td class="mono ni">0,152</td></tr>
+      <tr><td>Después del cromado</td><td class="mono">29,515</td><td class="mono cr">0,045</td></tr>
+      <tr><td><b>Incremento total</b></td><td></td><td class="mono"><b>0,197</b></td></tr>
+    </table>
+    <svg class="r" id="massChart" style="--d:2;margin-top:24px" width="820" height="250" viewBox="0 0 820 250"></svg>
+  </div>
+  <div style="position:absolute;right:80px;top:220px;width:560px;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:290px 290px;gap:16px">
+    <figure class="photo r" style="--d:3"><img src="assets/masa_inicial.jpg" alt="" style="object-position:50% 75%"><figcaption>29,318 g</figcaption></figure>
+    <figure class="photo r" style="--d:4"><img src="assets/masa_cr.jpg" alt="" style="object-position:50% 62%"><figcaption>29,470 g</figcaption></figure>
+    <figure class="photo r" style="--d:5;grid-column:span 2"><img src="assets/masa_lijado.jpg" alt="" style="object-position:50% 78%"><figcaption>29,515 g</figcaption></figure>
+  </div>
+</section>
+
+<!-- 16 CALCULOS -->
+<section class="slide" data-block="03 · Resultados">
+  <h2 class="r">Cálculos</h2>
+  <div style="position:absolute;left:80px;right:80px;top:215px;display:grid;grid-template-columns:1fr 1fr;gap:28px">
+    <div class="card r" style="--d:1;border-top:6px solid var(--ni)">
+      <span class="tag ni">Níquel · Δm = 0,152 g</span>
+      <div class="sub" style="margin-top:22px">Carga requerida</div>
+      <div class="formula" style="font-size:25px;margin-top:6px">Q =<span class="frac"><span>0,152 · 2 · 96 485</span><span>58,69 · 0,95</span></span>= <b>526 C</b></div>
+      <div class="sub" style="margin-top:24px">Espesor promedio</div>
+      <div class="formula" style="font-size:25px;margin-top:6px">e =<span class="frac"><span>0,152</span><span>8,908 · 20,1</span></span>= <b>8,5 µm</b></div>
+      <p style="margin-top:22px;font-size:20px">Rango típico para níquel: 5–15 µm.</p>
+    </div>
+    <div class="card r" style="--d:2;border-top:6px solid var(--cr)">
+      <span class="tag cr">Cromo · Δm = 0,045 g</span>
+      <div class="sub" style="margin-top:22px">Densidad de corriente</div>
+      <div class="formula" style="font-size:25px;margin-top:6px">i =<span class="frac"><span>7 – 10 A</span><span>0,201 dm²</span></span>= <b class="hot">35 – 50 A/dm²</b></div>
+      <div class="sub" style="margin-top:24px">Espesor promedio</div>
+      <div class="formula" style="font-size:25px;margin-top:6px">e =<span class="frac"><span>0,045</span><span>7,19 · 20,1</span></span>= <b>3,1 µm</b></div>
+      <p style="margin-top:22px;font-size:20px">Carga requerida con η = 12 %: 4 175 C. Rango típico para cromo decorativo: 0,2–1 µm.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 17 PATRON -->
+<section class="slide" data-block="03 · Resultados">
+  <h2 class="r">Patrón en la zona cromada</h2>
+  <div style="position:absolute;left:80px;top:210px;bottom:76px;display:grid;grid-template-columns:450px 260px 260px;gap:20px">
+    <figure class="photo r" style="--d:1"><img src="assets/patron_zoom.jpg" alt="">
+      <svg viewBox="0 0 480 620" preserveAspectRatio="xMidYMid slice" style="position:absolute;inset:0;width:100%;height:100%"><ellipse class="draw" style="--len:800;--d:3" cx="278" cy="290" rx="66" ry="168" fill="none" stroke="#C6452D" stroke-width="5"/></svg>
+      <figcaption>Marca en forma de D</figcaption></figure>
+    <figure class="photo r" style="--d:2"><img src="assets/patron_plano.jpg" alt=""><figcaption>Lámina completa</figcaption></figure>
+    <figure class="photo r" style="--d:3"><img src="assets/regla.jpg" alt=""><figcaption>Zona recubierta: 4,2 cm</figcaption></figure>
+  </div>
+  <div style="position:absolute;right:80px;top:220px;width:450px">
+    <ul class="clean">
+      <li class="r" style="--d:4">Borde curvo y definido, con la forma del extremo del ánodo.</li>
+      <li class="r" style="--d:5">Dentro de la marca el color es gris azulado oscuro, distinto al resto del cromo.</li>
+      <li class="r" style="--d:6">Línea horizontal en la parte superior de la zona recubierta.</li>
+      <li class="r" style="--d:7">Manchas verdes y naranjas en el cobre por encima del recubrimiento.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 18 CORTOCIRCUITO -->
+<section class="slide" data-block="03 · Resultados" data-anim="short">
+  <h2 class="r">Contacto entre electrodos</h2>
+  <div class="r" style="--d:1;position:absolute;left:80px;top:215px;width:780px">
+    <div class="phases" style="margin-bottom:16px"><span id="scN" class="on">Operación normal</span><span id="scS">Electrodos en contacto</span></div>
+    <svg id="scSvg" width="780" height="480" viewBox="0 0 760 450"></svg>
+  </div>
+  <div style="position:absolute;right:80px;top:215px;width:600px" id="scText"></div>
+</section>
+
+<!-- 19 ASPECTO -->
+<section class="slide" data-block="03 · Resultados">
+  <h2 class="r">Análisis del aspecto de la pieza</h2>
+  <div style="position:absolute;left:80px;right:80px;top:215px;bottom:80px;display:grid;grid-template-columns:330px 1fr;gap:32px">
+    <figure class="photo r" style="--d:1"><img src="assets/ni_uniforme.jpg" alt=""><figcaption>Después del niquelado</figcaption></figure>
+    <div class="aspect" style="display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:20px">
+      <style>.aspect .card p{font-size:24px}.aspect .card h3{font-size:30px}</style>
+      <div class="card r" style="--d:2;border-left:7px solid var(--ni)"><h3>Níquel</h3><p>Gris oscuro, mate y uniforme. El baño no tenía abrillantadores y se trabajó a 2 V.</p></div>
+      <div class="card r" style="--d:3;border-left:7px solid var(--cr)"><h3>Cromo</h3><p>Gris claro, sin brillo de espejo. La temperatura de 70 °C en aumento y la corriente alta favorecen depósitos opacos.</p></div>
+      <div class="card r" style="--d:4;border-left:7px solid var(--hot)"><h3>Marca en D</h3><p>En el contacto, la corriente se concentró en un punto y calentó la zona, que quedó con otro color.</p></div>
+      <div class="card r" style="--d:5;border-left:7px solid var(--cu)"><h3>Cobre</h3><p>Manchas por el ataque del ácido crómico sobre el cobre sin recubrir.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 20 AMBIENTAL -->
+<section class="slide" data-block="03 · Cierre">
+  <h2 class="r">Cromo hexavalente y alternativas</h2>
+  <style>.env li{font-size:30px;margin:30px 0}.env .tag{font-size:18px}</style>
+  <div class="row env" style="position:absolute;left:80px;right:80px;top:240px;gap:30px;align-items:stretch">
+    <div class="card r" style="--d:1;flex:1;border-top:6px solid var(--hot);padding:36px"><span class="tag hot">Cr(VI) · CrO₃</span><ul class="clean" style="margin-top:18px"><li>Tóxico y cancerígeno</li><li>Requiere EPP, campana y ventilación</li><li>Los efluentes se reducen a Cr(III) y se precipitan</li><li>El H₂ arrastra niebla ácida</li></ul></div>
+    <svg class="r" style="--d:2;align-self:center" width="140" height="60" viewBox="0 0 140 60"><path class="draw" style="--len:140" d="M5 30 H125" stroke="#16181D" stroke-width="3"/><path d="M115 18 L130 30 L115 42" fill="none" stroke="#16181D" stroke-width="3"/></svg>
+    <div class="card r" style="--d:3;flex:1;border-top:6px solid var(--ok);padding:36px"><span class="tag ok">Cr(III)</span><ul class="clean" style="margin-top:18px"><li>Menor toxicidad</li><li>Baños más estables</li><li>Menor poder de cubrimiento</li><li>Otras opciones: corriente pulsada, Ni-P, Zn-Ni</li></ul></div>
+  </div>
+</section>
+
+<!-- 21 CONCLUSIONES -->
+<section class="slide" data-block="03 · Cierre">
+  <h2 class="r">Conclusiones</h2>
+  <style>.concl li{font-size:30px;line-height:1.4;margin:0 0 30px;padding-left:36px}.concl li:before{width:12px;height:12px}</style>
+  <ul class="clean concl" style="position:absolute;left:80px;right:140px;top:240px">
+    <li class="r" style="--d:1">El niquelado a 2 V produjo un depósito uniforme con un incremento de 0,152 g, equivalente a 8,5 µm en promedio.</li>
+    <li class="r" style="--d:2">El cromado aumentó la masa en 0,045 g, para un incremento total de 0,197 g.</li>
+    <li class="r" style="--d:3">En el cromado, la densidad de corriente (35–50 A/dm²) y la temperatura (70 °C en aumento) estuvieron por encima de los rangos recomendados.</li>
+    <li class="r" style="--d:4">El contacto entre ánodo y cátodo durante la agitación produjo la marca en forma de D.</li>
+    <li class="r" style="--d:5">Para repetir el cromado: 45–55 °C, 3–6 A para esta área, separación fija entre electrodos y agitación suave.</li>
+  </ul>
+</section>
+
+<!-- 22 PREGUNTAS -->
+<section class="slide" data-block="">
+  <div style="position:absolute;left:80px;top:300px">
+    <h1 class="r" style="font-size:120px">Preguntas</h1>
+    <p class="lead r" style="--d:1;margin-top:26px">J. Gabriel Franco · Deivis Orlando Jiménez · Fabián Yesid Rivera</p>
+  </div>
+  <img class="r" style="--d:2;position:absolute;right:80px;bottom:80px;height:120px" src="assets/logo_uis.png" alt="UIS">
+</section>
+
+</div></div>
+
+<script>
+(()=>{
+if(location.search.includes('static'))document.body.classList.add('static');
+const stage=document.getElementById('stage');
+function fit(){const s=Math.min(innerWidth/1600,innerHeight/900);stage.style.transform=`scale(${s})`;}
+addEventListener('resize',fit);fit();
+const slides=[...document.querySelectorAll('.slide')];
+let cur=-1,enterT=0;
+const fmt=(x,d=1)=>x.toLocaleString('es-CO',{minimumFractionDigits:d,maximumFractionDigits:d});
+function go(n){
+  n=Math.max(0,Math.min(slides.length-1,n));
+  slides.forEach((s,i)=>{s.classList.toggle('active',i===n);s.classList.toggle('past',i<n);});
+  if(n!==cur)enterT=performance.now();
+  cur=n;
+  document.getElementById('progress').style.width=(n/(slides.length-1)*100)+'%';
+  document.getElementById('count').textContent=String(n+1).padStart(2,'0')+' / '+slides.length;
+  const b=slides[n].dataset.block||'';
+  document.getElementById('chiptxt').textContent=b;document.getElementById('chip').style.opacity=b?1:0;
+  document.getElementById('minilogo').style.opacity=(n===0||n===slides.length-1)?0:.85;
+  document.querySelector('#chip i').style.background=b.startsWith('02')?'var(--ni)':b.startsWith('03')?'var(--cr)':'var(--cu)';
+  history.replaceState(null,'','#'+(n+1));
+}
+/* modo presentación */
+function togglePresent(){
+  if(document.fullscreenElement){document.exitFullscreen();}
+  else{document.documentElement.requestFullscreen().catch(()=>{});}
+}
+document.getElementById('present').addEventListener('click',e=>{e.stopPropagation();togglePresent();});
+document.addEventListener('fullscreenchange',()=>{document.body.classList.toggle('presenting',!!document.fullscreenElement);fit();});
+let idleT;addEventListener('mousemove',()=>{document.body.classList.remove('idle');clearTimeout(idleT);idleT=setTimeout(()=>document.body.classList.add('idle'),2000);});
+addEventListener('keydown',e=>{
+  if(e.target.tagName==='INPUT')return;
+  if(['ArrowRight','PageDown',' ','Enter','ArrowDown'].includes(e.key)){e.preventDefault();go(cur+1);}
+  if(['ArrowLeft','PageUp','Backspace','ArrowUp'].includes(e.key)){e.preventDefault();go(cur-1);}
+  if(e.key==='Home')go(0);if(e.key==='End')go(slides.length-1);
+  if(e.key==='f'||e.key==='F'||e.key==='p'||e.key==='P')togglePresent();
+});
+stage.addEventListener('click',e=>{
+  if(e.target.closest('button,input,video,a,canvas,svg#crMap,svg#ivChart'))return;
+  const r=stage.getBoundingClientRect();(e.clientX-r.left)>r.width*0.5?go(cur+1):go(cur-1);
+});
+let tx=null;stage.addEventListener('touchstart',e=>tx=e.touches[0].clientX,{passive:true});
+stage.addEventListener('touchend',e=>{if(tx==null)return;const dx=e.changedTouches[0].clientX-tx;if(Math.abs(dx)>50)go(cur+(dx<0?1:-1));tx=null;});
+
+const NS='http://www.w3.org/2000/svg';
+function el(tag,attrs,parent){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);parent&&parent.appendChild(e);return e;}
+const idx=a=>slides.findIndex(s=>s.dataset.anim===a);
+
+/* celda */
+const ionsG=document.getElementById('ions'),elecG=document.getElementById('elec');
+const ions=[];for(let i=0;i<16;i++){const g=el('g',{},ionsG);el('circle',{r:13,fill:'#4F7A6C'},g);const t=el('text',{'text-anchor':'middle',y:4,'font-size':10,fill:'#fff','font-family':'JetBrains Mono'},g);t.textContent='Ni²⁺';ions.push({g,x:250+Math.random()*400,y:190+Math.random()*290,v:.6+Math.random()*.8});}
+const elecs=[];for(let i=0;i<6;i++){elecs.push({c:el('circle',{r:6,fill:'#C6452D'},elecG),p:i/6});}
+function along(pts,t){const segs=[];let L=0;for(let i=0;i<pts.length-1;i++){const d=Math.hypot(pts[i+1][0]-pts[i][0],pts[i+1][1]-pts[i][1]);segs.push(d);L+=d;}let s=t*L;for(let i=0;i<segs.length;i++){if(s<=segs[i]){const f=s/segs[i];return[pts[i][0]+(pts[i+1][0]-pts[i][0])*f,pts[i][1]+(pts[i+1][1]-pts[i][1])*f];}s-=segs[i];}return pts[pts.length-1];}
+const pA=[[210,170],[210,120],[380,120],[380,82]],pC=[[520,82],[520,120],[690,120],[690,170]];
+let coat=0;
+const h2g=document.getElementById('h2bub');const bubs=[];for(let i=0;i<22;i++){bubs.push({c:el('circle',{r:2+Math.random()*4,fill:'#fff','fill-opacity':.8,stroke:'#C3CEDD'},h2g),x:450+Math.random()*30,y:360-Math.random()*260,v:.6+Math.random()*1.2});}
+const iCell=idx('cell'),iShort=idx('short'),iNi=idx('ni'),iCr=idx('crbath'),iMap=idx('crmap');
+const ease=x=>x<.5?2*x*x:1-Math.pow(-2*x+2,2)/2;
+function seq(keys,t){if(t<=keys[0][0])return keys[0].slice(1);for(let k=1;k<keys.length;k++){if(t<=keys[k][0]){const a=keys[k-1],b=keys[k],f=ease((t-a[0])/(b[0]-a[0]));return a.slice(1).map((v,j)=>v+(b[j+1]-v)*f);}}return keys[keys.length-1].slice(1);}
+function tick(){
+  if(cur===iCell){
+    ions.forEach(o=>{o.x+=o.v;o.y+=Math.sin(o.x/30)*.3;if(o.x>650){o.x=245;o.y=190+Math.random()*290;coat=Math.min(1,coat+.004);}o.g.setAttribute('transform',`translate(${o.x},${o.y})`);});
+    elecs.forEach(e=>{e.p=(e.p+.004)%1;const q=e.p<.5?along(pA,e.p*2):along(pC,(e.p-.5)*2);e.c.setAttribute('cx',q[0]);e.c.setAttribute('cy',q[1]);});
+    document.getElementById('cathCoat').setAttribute('opacity',(.15+coat*.75).toFixed(2));
+  }
+  if(cur===iCr){bubs.forEach(b=>{b.y-=b.v;b.x+=Math.sin(b.y/12)*.4;if(b.y<60){b.y=360;b.x=450+Math.random()*30;}b.c.setAttribute('cx',b.x);b.c.setAttribute('cy',b.y);});}
+  const el_t=(performance.now()-enterT)/1000;
+  if(cur===iShort){const m=Math.floor(el_t/6)%2?'s':'n';if(m!==scMode){scMode=m;scPills();scBuild();}scTick();}
+  if(cur===iNi){const [V]=seq(NIK,el_t);niV=V;niUI();drawNi();}
+  if(cur===iMap){const [ci,cT]=seq(CRK,el_t);crUI(ci,cT,el_t);}
+  requestAnimationFrame(tick);
+}
+
+/* simulador Ni */
+const NIK=[[0,.6],[2.5,.6],[4,1.6],[6.5,1.6],[8,3.4],[10.5,3.4],[12,5.2],[14.5,5.2],[16.5,2.0]];let niV=.6,niLastZ=-1,niLastV=-1;
+const cv=document.getElementById('niCanvas'),cx=cv.getContext('2d');
+function niModel(V){const i=V<1.2?0:(V-1.2)*3.75;const eta=i<.3?0:i<=5?95:Math.max(35,95-(i-5)*8);
+  let z;if(i<.3)z={k:'Sin depósito',c:'#62666E',bg:'var(--paper2)',t:'El voltaje no supera el potencial de descomposición. No hay reducción de Ni²⁺.',fix:'Subir el voltaje.'};
+  else if(i<2)z={k:'Depósito lento',c:'#C98B1B',bg:'var(--amb-soft)',t:'Pocos núcleos de cristalización; capa delgada y con poros.',fix:'Subir el voltaje unas décimas o aumentar el tiempo.'};
+  else if(i<=5)z={k:'Rango adecuado',c:'#2E8B57',bg:'var(--ok-soft)',t:'Muchos núcleos pequeños: depósito compacto, adherente y uniforme. η ≈ 95 %.',fix:'Mantener las condiciones.'};
+  else if(i<=8)z={k:'Exceso',c:'#D2691E',bg:'var(--amb-soft)',t:'El Ni²⁺ no alcanza a llegar a la superficie. Aumenta el H₂ y aparecen picaduras y rugosidad.',fix:'Bajar el voltaje o agitar el baño.'};
+  else z={k:'Depósito quemado',c:'#C6452D',bg:'var(--hot-soft)',t:'Se supera la corriente límite: depósito oscuro y polvoriento, con nódulos en los bordes. Sube el pH junto al cátodo y precipita Ni(OH)₂.',fix:'Reducir la corriente y revisar la distancia entre electrodos.'};
+  return{i,eta,z};}
+function rnd(s){return()=>{s=(s*16807)%2147483647;return(s-1)/2147483646;};}
+let bubT=0;
+function drawNi(){const V=niV,{i,eta}=niModel(V);const W=1520,H=700;cx.clearRect(0,0,W,H);
+  const g=cx.createLinearGradient(0,0,0,H);g.addColorStop(0,'#F2F8F5');g.addColorStop(1,'#DCEBE4');cx.fillStyle=g;cx.fillRect(0,0,W,H);
+  cx.fillStyle='#C8784C';cx.fillRect(0,550,W,150);cx.fillStyle='#fff';cx.font='600 30px Space Grotesk';cx.fillText('Cu (cátodo)',30,640);
+  const r=rnd(7);const th=Math.min(160,i*14);
+  if(i>=.3){const n=i<2?18:i<=5?150:i<=8?95:65;
+    if(i>=2&&i<=5){cx.fillStyle='#8E9A96';cx.fillRect(0,550-th*0.75,W,th*0.75);}
+    for(let k=0;k<n;k++){const x=r()*W;let h,w,col;
+      if(i<2){w=50+r()*40;h=th*0.6+r()*10;col='#9AA5A1';}
+      else if(i<=5){w=14+r()*8;h=th+r()*6;col='#8E9A96';}
+      else if(i<=8){w=16+r()*14;h=th*(.6+r()*.8);col='#7A8581';}
+      else{w=10+r()*20;h=th*(.4+r()*1.6);col=r()>.5?'#4A4F4D':'#5E6461';}
+      cx.fillStyle=col;cx.beginPath();cx.ellipse(x,550,w/2,h,0,Math.PI,0);cx.fill();
+      if(i>8&&r()>.6){cx.strokeStyle='#3d413f';cx.lineWidth=3;cx.beginPath();cx.moveTo(x,550-h);cx.lineTo(x+(r()-.5)*40,550-h-30-r()*40);cx.stroke();}
+    }}
+  bubT+=1;const nb=Math.round((100-eta)/100*60*(i>0?1:0));const rb=rnd(3);
+  cx.strokeStyle='#7FA9C9';cx.fillStyle='rgba(255,255,255,.75)';cx.lineWidth=2;
+  for(let k=0;k<nb;k++){const x0=rb()*W,sp=1+rb()*2.5,rad=4+rb()*9;const y=(530-((bubT*sp+rb()*460)%460));cx.beginPath();cx.arc(x0+Math.sin((bubT+k*20)/20)*6,y,rad,0,7);cx.fill();cx.stroke();}
+  const ri=rnd(11);cx.fillStyle='#4F7A6C';const ni=i<.3?40:Math.max(10,40-i*3);for(let k=0;k<ni;k++){const x=ri()*W,y=(ri()*300+bubT*(i>0?.3+i*.05:0)*ri())%460+80;cx.beginPath();cx.arc(x,y,7,0,7);cx.fill();}
+  cx.fillStyle='#16181D';cx.font='600 30px JetBrains Mono';cx.fillText('i ≈ '+fmt(i,1)+' A/dm²   η ≈ '+Math.round(eta)+' %',30,50);
+}
+function niUI(){const V=niV,{i,z}=niModel(V);if(V===niLastV)return;niLastV=V;document.getElementById('vV').textContent=fmt(V,1)+' V';
+  const zi=i<.3?0:i<2?1:i<=5?2:i<=8?3:4;
+  document.querySelectorAll('#niPh span').forEach(sp=>{sp.classList.toggle('on',+sp.dataset.k===zi);sp.classList.toggle('ok',sp.dataset.k==='2');});
+  drawIV(V,i,z.c);if(zi===niLastZ)return;niLastZ=zi;
+  document.getElementById('niState').innerHTML=`<span class="tag" style="background:${z.bg};color:${z.c}">${z.k}</span><p style="margin-top:14px">${z.t}</p><p style="margin-top:10px;color:var(--ink)"><b>Corrección:</b> ${z.fix}</p>`;}
+function drawIV(V,i,col){const s=document.getElementById('ivChart');s.innerHTML='';const X=v=>60+v/6*520,Y=a=>215-a/14*190;
+  el('rect',{x:X(1.2+2/3.75),y:25,width:X(1.2+5/3.75)-X(1.2+2/3.75),height:190,fill:'#E1F1E7'},s);
+  el('text',{x:(X(1.2+2/3.75)+X(1.2+5/3.75))/2,y:46,'text-anchor':'middle','font-size':16,fill:'#2E8B57','font-weight':600},s).textContent='2–5 A/dm²';
+  el('line',{x1:60,y1:215,x2:580,y2:215,stroke:'#16181D'},s);el('line',{x1:60,y1:25,x2:60,y2:215,stroke:'#16181D'},s);
+  for(let v=0;v<=6;v++){el('text',{x:X(v),y:240,'text-anchor':'middle','font-size':16,fill:'#62666E'},s).textContent=v+' V';}
+  el('text',{x:0,y:16,'font-size':16,fill:'#62666E'},s).textContent='i (A/dm²)';
+  let d='';for(let v=0;v<=6;v+=.05){const a=v<1.2?0:Math.min(14,(v-1.2)*3.75);d+=(v?'L':'M')+X(v)+' '+Y(a);}
+  el('path',{d,fill:'none',stroke:'#16181D','stroke-width':2.5},s);
+  el('line',{x1:X(V),y1:215,x2:X(V),y2:Y(Math.min(14,i)),stroke:col,'stroke-dasharray':'4 4'},s);
+  el('circle',{cx:X(V),cy:Y(Math.min(14,i)),r:10,fill:col,stroke:'#fff','stroke-width':3},s);
+}
+niUI();drawNi();
+
+/* mapa Cr */
+const CRK=[[0,6,50],[2.5,6,50],[4.5,48,46],[7,48,46],[9,16,78],[11.5,16,78],[13.5,22,50]];let crLastZ='';
+const lo=T=>0.55*T-15,hi=T=>1.1*T-25;
+const crEta=(i,T)=>Math.max(1,Math.min(20,4+0.3*i-0.2*(T-45)));
+function crUI(i,T,tt){document.getElementById('ciV').textContent=fmt(i,0)+' A/dm²';document.getElementById('cTV').textContent=fmt(T,0)+' °C';
+  const s=document.getElementById('crMap');s.innerHTML='';const X=a=>70+a/60*660,Y=t=>420-(t-35)/50*390;
+  let pl='',ph='';for(let t=35;t<=85;t++){pl+=`${X(Math.max(0,lo(t)))},${Y(t)} `;ph+=`${X(Math.min(60,hi(t)))},${Y(t)} `;}
+  el('rect',{x:70,y:30,width:660,height:390,fill:'#F4F2EC'},s);
+  el('polygon',{points:`70,420 70,30 ${pl.trim().split(' ').reverse().join(' ')}`,fill:'#E9EEF5'},s);
+  el('polygon',{points:pl+ph.trim().split(' ').reverse().join(' '),fill:'#E1F1E7'},s);
+  el('polygon',{points:`${ph} 730,30 730,420`,fill:'#F8E3DD'},s);
+  el('text',{x:X(3),y:Y(80),'font-size':19,fill:'#3B5B88','font-weight':600},s).textContent='Opaco o sin depósito';
+  el('text',{x:X(24),y:Y(50),'font-size':19,fill:'#2E8B57','font-weight':600},s).textContent='Brillante';
+  el('text',{x:X(44),y:Y(39),'font-size':19,fill:'#C6452D','font-weight':600},s).textContent='Quemado';
+  el('rect',{x:X(15),y:Y(55),width:X(30)-X(15),height:Y(45)-Y(55),fill:'none',stroke:'#2E8B57','stroke-width':2.5,'stroke-dasharray':'6 5'},s);
+  el('text',{x:X(15),y:Y(55)-8,'font-size':16,fill:'#2E8B57','font-weight':600},s).textContent='Recomendado';
+  let tr='';for(let q=0;q<=Math.min(tt,13.5);q+=.1){const [a,b]=seq(CRK,q);tr+=(q?'L':'M')+X(a)+' '+Y(b);}
+  el('path',{d:tr,fill:'none',stroke:'#16181D','stroke-width':2,'stroke-dasharray':'3 6',opacity:.5},s);
+  for(let a=0;a<=60;a+=10)el('text',{x:X(a),y:446,'text-anchor':'middle','font-size':16,fill:'#62666E'},s).textContent=a;
+  for(let t=40;t<=80;t+=10)el('text',{x:60,y:Y(t)+5,'text-anchor':'end','font-size':16,fill:'#62666E'},s).textContent=t+' °C';
+  el('text',{x:400,y:476,'text-anchor':'middle','font-size':17,fill:'#33363D'},s).textContent='Densidad de corriente (A/dm²)';
+  el('circle',{cx:X(i),cy:Y(T),r:12,fill:'#16181D',stroke:'#fff','stroke-width':3},s);
+  const e=crEta(i,T);let z;const phs=tt<4?'o':tt<8?'q':tt<12.5?'t':'b';
+  document.querySelectorAll('#crPh span').forEach(sp=>{sp.classList.toggle('on',sp.dataset.k===phs);sp.classList.toggle('ok',sp.dataset.k==='b');});
+  if(i<lo(T))z=['Opaco o sin depósito','#3B5B88','var(--cr-soft)','La corriente no alcanza para reducir Cr⁶⁺ a Cr⁰ a esta temperatura. Casi toda la carga se va en H₂.','Subir la corriente o bajar la temperatura.'];
+  else if(i>hi(T))z=['Quemado','#C6452D','var(--hot-soft)','Depósito gris oscuro, rugoso y nodular en bordes. Mucho H₂ y calentamiento.','Bajar la corriente o subir la temperatura.'];
+  else z=['Brillante','#2E8B57','var(--ok-soft)','Depósito duro y brillante.','Mantener la temperatura estable.'];
+  const zk=z[0]+phs;if(zk===crLastZ)return;crLastZ=zk;
+  document.getElementById('crState').innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center"><span class="tag" style="background:${z[2]};color:${z[1]}">${z[0]}</span><span class="mono" style="font-size:21px">η ≈ ${fmt(e,0)} %</span></div><p style="margin-top:14px">${z[3]}</p><p style="margin-top:10px;color:var(--ink)"><b>Corrección:</b> ${z[4]}</p><p class="note" style="margin-top:8px">Corriente equivalente en la lámina: ${fmt(i*0.201,1)} A</p>`;}
+crUI(6,50,0);
+
+/* grafica de masas */
+(function(){const s=document.getElementById('massChart');const pts=[['Inicial',29.318,'#B8643A'],['Niquelado',29.470,'#4F7A6C'],['Cromado',29.515,'#3B5B88']];
+  const X=k=>150+k*270,Y=m=>210-(m-29.30)/(29.53-29.30)*180;
+  [29.30,29.40,29.50].forEach(m=>{el('line',{x1:70,x2:800,y1:Y(m),y2:Y(m),stroke:'#E3DFD6'},s);el('text',{x:60,y:Y(m)+5,'text-anchor':'end','font-size':16,fill:'#62666E','font-family':'JetBrains Mono'},s).textContent=fmt(m,2);});
+  el('path',{d:pts.map((p,k)=>(k?'L':'M')+X(k)+' '+Y(p[1])).join(' '),fill:'none',stroke:'#16181D','stroke-width':3,class:'draw',style:'--len:700;--d:2'},s);
+  pts.forEach((p,k)=>{const g=el('g',{class:'r',style:`--d:${3+k}`},s);
+    el('circle',{cx:X(k),cy:Y(p[1]),r:11,fill:p[2],stroke:'#fff','stroke-width':4},g);
+    const lp=[[-16,-14,'end'],[18,34,'start'],[-20,-16,'end']][k];
+    el('text',{x:X(k)+lp[0],y:Y(p[1])+lp[1],'text-anchor':lp[2],'font-size':20,'font-weight':700,'font-family':'Space Grotesk',fill:'#16181D'},g).textContent=fmt(p[1],3)+' g';
+    el('text',{x:X(k),y:242,'text-anchor':'middle','font-size':18,fill:'#33363D'},g).textContent=p[0];});
+})();
+
+/* cortocircuito */
+let scMode='n',scT=0;const scSvg=document.getElementById('scSvg');
+function scBuild(){scSvg.innerHTML='';
+  el('path',{d:'M60 120 V380 Q60 410 90 410 H670 Q700 410 700 380 V120',fill:'#F0D2B0',stroke:'#9C5A2C','stroke-width':3},scSvg);
+  el('rect',{x:120,y:30,width:560,height:56,rx:10,fill:'#16181D'},scSvg);
+  el('text',{x:400,y:66,'text-anchor':'middle','font-family':'JetBrains Mono','font-size':20,fill:'#9FE3B8',id:'scAmp'},scSvg);
+  const ax=scMode==='n'?220:420;
+  el('rect',{x:ax,y:100,width:46,height:250,rx:5,fill:'#3B3C42'},scSvg);el('text',{x:ax+23,y:378,'text-anchor':scMode==='n'?'middle':'end','font-size':18,'font-weight':600},scSvg).textContent='Pb (+)';
+  el('rect',{x:470,y:100,width:46,height:250,rx:5,fill:'#C3CEDD'},scSvg);el('text',{x:scMode==='n'?493:524,y:378,'text-anchor':scMode==='n'?'middle':'start','font-size':18,'font-weight':600},scSvg).textContent='Lámina (−)';
+  el('path',{d:`M${ax+23} 100 V86`,stroke:'#C6452D','stroke-width':4},scSvg);el('path',{d:'M493 100 V86',stroke:'#3B5B88','stroke-width':4},scSvg);
+  el('ellipse',{cx:380,cy:396,rx:34,ry:8,fill:'#16181D'},scSvg);el('text',{x:380,y:436,'text-anchor':'middle','font-size':17,fill:'#62666E'},scSvg).textContent='Barra de agitación';
+  if(scMode==='s'){el('circle',{cx:468,cy:230,r:30,fill:'#FFB347','fill-opacity':.35,id:'scHot'},scSvg);el('text',{x:540,y:226,'font-size':18,fill:'#C6452D','font-weight':600},scSvg).textContent='Punto de contacto';}
+  scSvg._dots=[];for(let k=0;k<26;k++){scSvg._dots.push({c:el('circle',{r:5.5},scSvg),p:Math.random(),y:120+Math.random()*220});}
+  scText();}
+function scTick(){scT++;const a=document.getElementById('scAmp');if(!a)return;
+  a.textContent=scMode==='n'?'Corriente iónica a través del baño':'Corriente por contacto metálico';
+  scSvg._dots.forEach(d=>{d.p=(d.p+(scMode==='n'?.006:.002))%1;const x=scMode==='n'?266+d.p*(470-266):466+Math.sin(d.p*6.28)*3;d.c.setAttribute('cx',x);d.c.setAttribute('cy',scMode==='n'?d.y:230+Math.cos(d.p*6.28)*14);d.c.setAttribute('fill',scMode==='n'?'#3B5B88':'#C6452D');d.c.setAttribute('opacity',scMode==='n'?.8:.5);});
+  const h=document.getElementById('scHot');if(h)h.setAttribute('r',26+Math.sin(scT/5)*6);}
+function scText(){const box=document.getElementById('scText');
+  box.innerHTML=scMode==='n'?`<div class="card"><span class="tag cr">Operación normal</span><p style="margin-top:16px">La corriente atraviesa el electrolito como flujo de iones y el Cr⁶⁺ se reduce sobre toda la superficie de la lámina.</p></div>`:
+  `<div class="card" style="border-color:var(--hot)"><span class="tag hot">Electrodos en contacto</span><ul class="clean" style="margin-top:14px"><li>La corriente pasa directamente del ánodo a la lámina y no por el baño. En ese intervalo no hay depósito.</li><li>La corriente se concentra en el punto de contacto y lo calienta por efecto Joule.</li><li>El área de contacto queda con un color y un espesor distintos al resto: la marca en forma de D.</li></ul></div>`;}
+function scPills(){document.getElementById('scN').classList.toggle('on',scMode==='n');document.getElementById('scS').classList.toggle('on',scMode==='s');}
+scBuild();
+
+go(Math.max(0,(parseInt(location.hash.slice(1))||1)-1));
+requestAnimationFrame(tick);
+})();
+</script>
+</body>
+</html>

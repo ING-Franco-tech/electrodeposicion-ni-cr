@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Guion de exposición · Electrodeposición Ni/Cr</title>
+<style>
+@page{size:A4;margin:20mm 18mm 18mm}
+*{box-sizing:border-box}
+body{font-family:'Segoe UI',Calibri,Arial,sans-serif;color:#1b1d22;font-size:10.8pt;line-height:1.5;margin:0}
+h1{font-size:22pt;margin:0 0 4pt;letter-spacing:-.3pt}
+h2{font-size:15pt;margin:0 0 2pt;padding-top:2pt}
+h3{font-size:11pt;margin:14pt 0 4pt;color:#3B5B88;text-transform:uppercase;letter-spacing:.6pt}
+.sub{color:#5f636b;font-size:10pt}
+.cover{border-bottom:2.5pt solid #1b1d22;padding-bottom:10pt;margin-bottom:12pt}
+table{border-collapse:collapse;width:100%;font-size:10pt;margin:8pt 0}
+th{text-align:left;border-bottom:1.5pt solid #1b1d22;padding:4pt 6pt;font-size:9pt;text-transform:uppercase;color:#5f636b}
+td{border-bottom:.6pt solid #d8d4cb;padding:5pt 6pt;vertical-align:top}
+.block{page-break-before:always}
+.head{display:flex;justify-content:space-between;align-items:baseline;border-bottom:2pt solid var(--c);padding-bottom:5pt;margin-bottom:6pt}
+.head .t{font-size:10pt;color:#5f636b}
+.slide{margin:12pt 0 0;padding:8pt 10pt 8pt 12pt;border-left:3pt solid var(--c);background:#f7f6f2;page-break-inside:avoid}
+.slide .n{font-weight:700;font-size:10pt;color:var(--c)}
+.slide .time{float:right;font-size:9pt;color:#5f636b}
+.say{margin:5pt 0 0}
+.tech{margin:6pt 0 0;font-size:9.6pt;color:#3a3e46}
+.tech b{color:#1b1d22}
+.f{font-family:Consolas,'Courier New',monospace;font-size:10pt;background:#fff;border:.6pt solid #d8d4cb;padding:1pt 4pt;border-radius:2pt}
+.qa{page-break-inside:avoid;margin:8pt 0}
+.qa b{display:block}
+.note{font-size:9.4pt;color:#5f636b;border:.6pt solid #d8d4cb;padding:6pt 8pt;margin-top:10pt}
+</style>
+</head>
+<body>
+
+<div class="cover">
+  <h1>Electrodeposición de níquel y cromo</h1>
+  <div class="sub">Guion de exposición · Hidro y Electrometalurgia · Universidad Industrial de Santander · Noviembre 2026</div>
+</div>
+
+<table>
+  <tr><th>Expositor</th><th>Temática</th><th>Diapositivas</th><th>Tiempo</th></tr>
+  <tr><td>J. Gabriel Franco</td><td>Fundamentos y efecto de las variables</td><td>1 – 6</td><td>5–6 min</td></tr>
+  <tr><td>Deivis Orlando Jiménez</td><td>Baños, eficiencia, proceso y montaje</td><td>7 – 13</td><td>5–6 min</td></tr>
+  <tr><td>Fabián Yesid Rivera</td><td>Resultados, análisis y cierre</td><td>14 – 21</td><td>5–6 min</td></tr>
+</table>
+<p class="sub">La asignación de bloques es una propuesta y se puede cambiar. Los textos están escritos para decirse en voz alta; no hace falta leerlos al pie de la letra. Debajo de cada diapositiva hay datos técnicos de apoyo para responder preguntas.</p>
+
+<p class="sub"><b>Navegación:</b> flechas o clic a los lados para avanzar; tecla P o botón “Modo presentación” para pantalla completa. Las animaciones de las diapositivas 5, 6 y 17 arrancan solas al llegar a ellas y duran unos 15 segundos; conviene hablar mientras corren.</p>
+
+<!-- ================= EXPOSITOR 1 ================= -->
+<div class="block" style="--c:#B8643A">
+  <div class="head"><h2>Expositor 1 · J. Gabriel Franco</h2><span class="t">Fundamentos · 5–6 min</span></div>
+
+  <div class="slide"><span class="n">Diapositiva 1 · Portada</span><span class="time">30 s</span>
+    <p class="say">Buenos días. Somos Gabriel Franco, Deivis Jiménez y Fabián Rivera. Vamos a presentar una práctica libre de electrodeposición en la que recubrimos una lámina de cobre primero con níquel y después con cromo. Es el mismo sistema Cu/Ni/Cr que se usa industrialmente en grifería y piezas automotrices.</p>
+  </div>
+
+  <div class="slide"><span class="n">Diapositiva 2 · Contenido</span><span class="time">20 s</span>
+    <p class="say">La exposición tiene tres partes. Primero los fundamentos: la celda, la ley de Faraday y cómo influyen el voltaje y la corriente. Después Deivis explica los baños y el proceso, y Fabián presenta los resultados y el análisis de la pieza.</p>
+  </div>
+
+  <div class="slide"><span class="n">Diapositiva 3 · Celda electrolítica</span><span class="time">1 min 15 s</span>
+    <p class="say">La electrodeposición ocurre en una celda electrolítica: una fuente de corriente continua obliga a que ocurra una reacción que no es espontánea. El polo negativo se conecta a la pieza, que es el cátodo, y el positivo al ánodo. En el electrolito hay iones Ni²⁺ que migran hacia el cátodo, toman dos electrones y se depositan como níquel metálico.</p>
+    <p class="say">En el niquelado el ánodo es de níquel y se disuelve, así que repone los iones que se van depositando y la concentración del baño se mantiene. En el cátodo hay además una reacción que compite: la reducción de H⁺ a hidrógeno gaseoso. Esa reacción consume parte de la corriente y por eso la eficiencia nunca llega al 100 %.</p>
+    <p class="say">Se usa corriente continua porque la polaridad tiene que ser fija: la pieza siempre debe ser el cátodo. Si la polaridad se invierte, la pieza pasa a ser ánodo y en lugar de recubrirse se disuelve.</p>
+    <p class="tech"><b>Reacciones:</b> ánodo <span class="f">Ni → Ni²⁺ + 2e⁻</span>; cátodo <span class="f">Ni²⁺ + 2e⁻ → Ni</span>; secundaria <span class="f">2H⁺ + 2e⁻ → H₂</span>. Los electrones circulan por el circuito externo; dentro del baño la corriente la transportan los iones.</p>
+  </div>
+
+  <div class="slide"><span class="n">Diapositiva 4 · Ley de Faraday</span><span class="time">1 min 15 s</span>
+    <p class="say">La cantidad de metal depositado se calcula con la ley de Faraday: la masa es proporcional a la carga que pasa por la celda, que es corriente por tiempo. Se divide por el número de electrones de la reacción y por la constante de Faraday, y se multiplica por la eficiencia de corriente.</p>
+    <p class="say">Como ejemplo, nuestra lámina tiene un área recubierta de 20,1 cm², es decir 0,201 dm². Con la densidad de corriente recomendada para níquel, 3 A/dm², la corriente es 0,60 A. En 15 minutos y con eficiencia del 95 %, la ley de Faraday da 0,156 g. En la práctica medimos 0,152 g, un valor muy cercano.</p>
+    <p class="say">La eficiencia η indica qué fracción de la carga se convierte realmente en metal. En el níquel es alta, cerca del 95 %; en el cromo es muy baja, del orden del 12 %. Esa diferencia explica por qué el cromado necesita corrientes mucho más altas para depositar una capa mucho más delgada.</p>
+    <p class="tech"><b>Fórmula:</b> <span class="f">m = (M · I · t / n · F) · η</span>. M<sub>Ni</sub> = 58,69 g/mol, n = 2; M<sub>Cr</sub> = 52,00 g/mol, n = 6; F = 96 485 C/mol. <b>Cálculo:</b> 58,69 × 0,60 × 900 / (2 × 96 485) × 0,95 = 0,156 g. <b>Área:</b> 2,34 cm × 4,2 cm × 2 caras ≈ 20,1 cm², medida con regla.</p>
+  </div>
+
+  <div class="slide"><span class="n">Diapositiva 5 · Efecto del voltaje en el niquelado</span><span class="time">1 min 15 s</span>
+    <p class="say">Esta animación muestra qué le pasa al depósito según el voltaje. Por debajo de aproximadamente 1,2 V no se supera el potencial de descomposición y no se deposita nada. Con 1,6 V hay depósito, pero con pocos núcleos: la capa crece lenta y queda porosa.</p>
+    <p class="say">Si subimos a 3,4 V la corriente sale del rango: los iones Ni²⁺ no alcanzan a llegar a la superficie, aumenta el hidrógeno y aparecen picaduras. A 5,2 V se supera la corriente límite y el depósito se quema: queda oscuro, polvoriento y con dendritas en los bordes. El punto óptimo está alrededor de 2 V, que fue el voltaje que usamos. Ahí la densidad de corriente queda entre 2 y 5 A/dm² y se forman muchos núcleos pequeños, lo que da una capa compacta y adherente.</p>
+    <p class="tech"><b>Apoyo:</b> el exceso de corriente produce polarización por concentración; junto al cátodo sube el pH y puede precipitar Ni(OH)₂, que se incorpora al depósito y lo oscurece. Rango de referencia del baño Watts: 2–5 A/dm², pH 4,0–4,5, 45–55 °C.</p>
+  </div>
+
+  <div class="slide"><span class="n">Diapositiva 6 · Corriente y temperatura en el cromado</span><span class="time">1 min</span>
+    <p class="say">En el cromado hay dos variables que actúan juntas: la densidad de corriente y la temperatura. El mapa muestra tres zonas. Con poca corriente el depósito sale opaco o no se forma. Con demasiada corriente se quema. Entre las dos hay una franja donde el cromo sale brillante.</p>
+    <p class="say">La animación muestra que al subir la temperatura la franja brillante se corre hacia corrientes más altas, y además la eficiencia baja. Por eso la condición recomendada es de 45 a 55 °C con 15 a 30 A/dm². Si la temperatura sube durante el proceso, como ocurre por el calentamiento del propio baño, la misma corriente que antes daba brillo empieza a dar un depósito opaco o lechoso, y la eficiencia cae. Por eso en el cromado la temperatura se controla tanto como la corriente. Con eso le doy paso a Deivis, que explica cada baño en detalle.</p>
+    <p class="tech"><b>Apoyo:</b> el baño de cromo duro/decorativo trabaja con CrO₃ ≈ 250 g/L y H₂SO₄ en relación 100:1. La eficiencia catódica típica es de 10–15 % y disminuye al aumentar la temperatura. Para nuestra lámina, 15–30 A/dm² equivalen a 3–6 A.</p>
+  </div>
+</div>
+
+<!-- ================= EXPOSITOR 2 ================= -->
+<div class="block" style="--c:#4F7A6C">
+  <div class="head"><h2>Expositor 2 · Deivis Orlando Jiménez</h2><span class="t">Baños, eficiencia y proceso · 5–6 min</span></div>
+
+  <div class="slide"><span class="n">Diapositiva 7 · Baño de niquelado</span><span class="time">1 min</span>
+    <p class="say">El baño de níquel que preparamos es tipo Watts. Usamos 50 g de cloruro de níquel y 7 g de ácido bórico en 500 mL de agua, es decir unos 100 g/L y 14 g/L. El cloruro aporta los iones Ni²⁺ y además evita que el ánodo de níquel se pasive. El ácido bórico funciona como regulador de pH cerca del cátodo: ahí se consumen H⁺, el pH tiende a subir y, sin el buffer, precipitaría hidróxido de níquel sobre la pieza.</p>
+    <p class="say">Trabajamos a 2 V con ánodo de níquel. El depósito salió gris oscuro, mate y uniforme, que es lo esperado para un baño sin abrillantadores.</p>
+    <p class="tech"><b>Apoyo:</b> el brillo en industria se logra con aditivos orgánicos (sacarina, butinodiol), que no usamos. El Cl⁻ mejora la disolución anódica y la conductividad.</p>
+  </div>
+
+  <div class="slide"><span class="n">Diapositiva 8 · Baño de cromado</span><span class="time">1 min</span>
+    <p class="say">El cromado es diferente. El cromo no se deposita desde un ánodo de cromo, porque el cromo metálico se pasiva en ácido crómico y no se disuelve. Se usa un ánodo de plomo, que es inerte: solo conduce la corriente. El cromo sale del propio baño, que es ácido crómico, CrO₃ disuelto en agua.</p>
+    <p class="say">La reducción de Cr⁶⁺ a Cr⁰ necesita seis electrones por átomo y gran parte de la corriente se va en hidrógeno. Por eso se ven tantas burbujas en el cátodo. Esas burbujas también agitan la superficie y pueden dejar pequeños poros en el depósito. El baño necesita una pequeña cantidad de ácido sulfúrico como catalizador, en relación 100 a 1 con el CrO₃.</p>
+    <p class="tech"><b>Reacciones:</b> <span class="f">CrO₃ + H₂O → H₂CrO₄</span>; <span class="f">Cr⁶⁺ + 6e⁻ → Cr⁰</span>. El ánodo de plomo se recubre de PbO₂ (capa negra), que además reoxida el Cr³⁺ formado a Cr⁶⁺.</p>
+  </div>
+
+  <div class="slide"><span class="n">Diapositiva 9 · Eficiencia de corriente</span><span class="time">45 s</span>
+    <p class="say">Esta comparación resume la diferencia entre los dos procesos. En el níquel, cerca del 95 % de la corriente se convierte en metal. En el cromo solo alrededor del 12 %; el resto se va en hidrógeno y en la reducción parcial de Cr⁶⁺ a Cr³⁺. En números: depositar 1 g de níquel requiere unos 3 460 C, y 1 g de cromo unos 92 800 C, casi 27 veces más carga.</p>
+    <p class="tech"><b>Cálculo:</b> Q = m · n · F / (M · η). Ni: 1 × 2 × 96 485 / (58,69 × 0,95) ≈ 3 460 C. Cr: 1 × 6 × 96 485 / (52,00 × 0,12) ≈ 92 800 C.</p>
+  </div>
+
+  <div class="slide"><span class="n">Diapositiva 10 · ¿Por qué níquel antes que cromo?</span><span class="time">1 min</span>
+    <p class="say">El orden de las capas no es arbitrario. Primero, el cromo se adhiere mal directamente sobre cobre, y sobre níquel sí queda anclado. Segundo, la capa de cromo es muy delgada, de 0,2 a 1 µm, y tiene microfisuras, así que por sí sola no protege. El níquel, de 5 a 15 µm, es la barrera real contra la corrosión. Tercero, el níquel nivela las rayas del lijado. Y cuarto, el ácido crómico ataca el cobre expuesto, así que el níquel también protege la pieza dentro del baño de cromo.</p>
+    <p class="say">Si entra humedad por un poro del cromo, el níquel se corroe primero y protege al cobre. El cromo aporta la dureza, el brillo y la resistencia al desgaste.</p>
+  </div>
+
+  <div class="slide"><span class="n">Diapositiva 11 · Diagrama de flujo</span><span class="time">1 min</span>
+    <p class="say">El proceso fue el siguiente. Pesamos la lámina, 29,318 g. La lijamos y desengrasamos; este es un paso crítico, porque una superficie con grasa u óxido produce desprendimiento del recubrimiento. Hicimos un decapado para activarla y pasamos al niquelado a 2 V. Enjuagamos y volvimos a pesar.</p>
+    <p class="say">Antes del cromado se hizo un lijado suave y un decapado para activar el níquel, porque su superficie se pasiva al aire. Luego el cromado con ácido crómico, ánodo de plomo, calentamiento a 70 °C y agitación magnética. Durante esta etapa, por la agitación, el ánodo llegó a tocar la lámina; eso lo analiza Fabián. Al final enjuagamos, secamos y pesamos.</p>
+  </div>
+
+  <div class="slide"><span class="n">Diapositiva 12 · Montaje</span><span class="time">30 s</span>
+    <p class="say">Aquí está el montaje. La lámina y el ánodo de plomo estaban sujetos con pinzas sobre una lámina de icopor, para mantener la separación y la profundidad de inmersión. El baño estaba sobre una plancha con calentamiento y agitación magnética. En el video se ve la celda en operación.</p>
+  </div>
+
+  <div class="slide"><span class="n">Diapositiva 13 · Parámetros de operación</span><span class="time">45 s</span>
+    <p class="say">La tabla reúne las condiciones de cada etapa. En negro están los valores que registramos: 2 V en el niquelado; 7 a 10 A, 70 °C y agitación magnética en el cromado, con un área de 20,1 cm². En gris están los valores de referencia bibliográfica para lo que no medimos directamente, como el pH o la composición del baño de cromo. Los tiempos los estimamos con la ley de Faraday a partir de las masas. Con esto le doy paso a Fabián.</p>
+    <p class="tech"><b>Si preguntan por los valores en gris:</b> son condiciones típicas de la literatura para cada baño, no mediciones propias. Los tiempos se obtienen de t = Q / I: níquel ≈ 526 C / 0,6 A ≈ 15 min; cromo ≈ 4 175 C / 7–10 A ≈ 7–10 min.</p>
+  </div>
+</div>
+
+<!-- ================= EXPOSITOR 3 ================= -->
+<div class="block" style="--c:#3B5B88">
+  <div class="head"><h2>Expositor 3 · Fabián Yesid Rivera</h2><span class="t">Resultados, análisis y cierre · 5–6 min</span></div>
+
+  <div class="slide"><span class="n">Diapositiva 14 · Registro de masa</span><span class="time">45 s</span>
+    <p class="say">Estos son los resultados de pesaje en balanza analítica. La lámina pasó de 29,318 g a 29,470 g después del niquelado, un incremento de 0,152 g. Después del cromado llegó a 29,515 g, un incremento de 0,045 g. El incremento total fue de 0,197 g.</p>
+    <p class="say">La balanza analítica tiene resolución de 0,001 g, suficiente para medir incrementos de este orden. Antes de cada pesaje la lámina se enjuagó y se secó, para no sumar agua o restos de solución a la masa del recubrimiento.</p>
+  </div>
+
+  <div class="slide"><span class="n">Diapositiva 15 · Cálculos</span><span class="time">1 min 15 s</span>
+    <p class="say">Con estas masas calculamos la carga y el espesor. Para el níquel, depositar 0,152 g con eficiencia del 95 % requiere 526 C. Dividiendo la masa entre la densidad del níquel y el área, el espesor promedio es de 8,5 µm, dentro del rango típico de 5 a 15 µm.</p>
+    <p class="say">Para el cromo, la corriente de 7 a 10 A sobre 0,201 dm² da una densidad de 35 a 50 A/dm², por encima del rango recomendado de 15 a 30. El incremento de 0,045 g corresponde a un espesor promedio de 3,1 µm, mayor que el del cromo decorativo típico. Parte de ese incremento puede corresponder a depósito quemado y óxidos en la zona donde se tocaron los electrodos, no solo a cromo metálico.</p>
+    <p class="tech"><b>Cálculos:</b> Q<sub>Ni</sub> = 0,152 × 2 × 96 485 / (58,69 × 0,95) = 526 C. e<sub>Ni</sub> = 0,152 / (8,908 × 20,1) = 8,5 µm. e<sub>Cr</sub> = 0,045 / (7,19 × 20,1) = 3,1 µm. Q<sub>Cr</sub> con η = 12 %: 4 175 C. Densidades: Ni 8,908 g/cm³, Cr 7,19 g/cm³.</p>
+  </div>
+
+  <div class="slide"><span class="n">Diapositiva 16 · Patrón en la zona cromada</span><span class="time">45 s</span>
+    <p class="say">En la zona cromada apareció una marca con forma de D. Tiene el borde curvo y definido, con la forma del extremo del ánodo, y por dentro es gris azulado oscuro, distinto del resto del cromo. También se ve una línea horizontal en la parte alta de la zona recubierta y manchas verdes y naranjas en el cobre que quedó por encima.</p>
+    <p class="say">La línea horizontal coincide con el nivel del líquido: con la agitación el nivel sube y baja, y en esa franja la lámina queda alternadamente dentro y fuera del baño. Las manchas verdes y naranjas son compuestos de cobre que se forman cuando el ácido crómico, que es un oxidante fuerte, ataca el cobre sin recubrir.</p>
+  </div>
+
+  <div class="slide"><span class="n">Diapositiva 17 · Contacto entre electrodos</span><span class="time">1 min</span>
+    <p class="say">La animación compara las dos situaciones. En operación normal, la corriente atraviesa el electrolito como flujo de iones y el cromo se reduce sobre toda la superficie de la lámina. Cuando la agitación hizo que el ánodo tocara la lámina, la corriente pasó directamente de un metal al otro, sin atravesar el baño. Durante ese contacto no hay depósito.</p>
+    <p class="say">Además, toda la corriente se concentra en el punto de contacto y lo calienta por efecto Joule. Por eso esa zona queda con otro color y otro espesor: es la marca en forma de D que vimos en la foto.</p>
+    <p class="tech"><b>Apoyo:</b> la coloración gris azulada es típica de óxidos formados por calentamiento local (coloración térmica). La resistencia del contacto metálico es mucho menor que la del electrolito, así que la corriente prefiere ese camino.</p>
+  </div>
+
+  <div class="slide"><span class="n">Diapositiva 18 · Aspecto de la pieza</span><span class="time">45 s</span>
+    <p class="say">Resumiendo el aspecto de cada zona. El níquel quedó gris oscuro, mate y uniforme, porque el baño no tenía abrillantadores. El cromo quedó gris claro, sin brillo espejo; a 70 °C y con corriente alta el cromo tiende a salir opaco. La marca en D se explica por el contacto de los electrodos. Y las manchas del cobre se deben al ataque del ácido crómico sobre el cobre que no estaba recubierto.</p>
+    <p class="say">Lo importante es que cada defecto tiene una causa identificable en una variable del proceso: la temperatura, la corriente o la geometría de la celda. Eso permite corregirlos en una nueva práctica.</p>
+  </div>
+
+  <div class="slide"><span class="n">Diapositiva 19 · Cromo hexavalente y alternativas</span><span class="time">45 s</span>
+    <p class="say">Un punto importante es la seguridad. El cromo hexavalente del ácido crómico es tóxico y cancerígeno. Se manipula con EPP, campana y ventilación, y los efluentes se tratan reduciendo el Cr(VI) a Cr(III) y precipitándolo. Además, el hidrógeno que se desprende arrastra niebla ácida. La industria está migrando a baños de cromo trivalente, menos tóxicos aunque con menor poder de cubrimiento, y a alternativas como corriente pulsada o recubrimientos Ni-P y Zn-Ni.</p>
+    <p class="tech"><b>Tratamiento típico:</b> reducción con bisulfito de sodio o sulfato ferroso en medio ácido (Cr⁶⁺ → Cr³⁺), y luego precipitación como Cr(OH)₃ subiendo el pH.</p>
+  </div>
+
+  <div class="slide"><span class="n">Diapositiva 20 · Conclusiones</span><span class="time">45 s</span>
+    <p class="say">Para cerrar. El niquelado a 2 V dio un depósito uniforme con 0,152 g, unos 8,5 µm de espesor. El cromado aumentó la masa en 0,045 g, para un total de 0,197 g. En el cromado la densidad de corriente y la temperatura quedaron por encima de lo recomendado, y el contacto entre ánodo y cátodo produjo la marca en forma de D. Para repetir el cromado trabajaríamos a 45–55 °C, con 3 a 6 A para esta área, con separación fija entre electrodos y agitación suave.</p>
+  </div>
+
+  <div class="slide"><span class="n">Diapositiva 21 · Preguntas</span><span class="time">—</span>
+    <p class="say">Muchas gracias. Quedamos atentos a sus preguntas.</p>
+  </div>
+</div>
+
+<!-- ================= PREGUNTAS ================= -->
+<div class="block" style="--c:#1b1d22">
+  <div class="head"><h2>Preguntas probables del jurado</h2><span class="t">Respuestas cortas</span></div>
+  <div class="qa"><b>¿Por qué no se usa ánodo de cromo?</b>El cromo metálico se pasiva en ácido crómico y no se disuelve de forma útil. Se usa plomo, que es inerte, y el cromo se repone desde el CrO₃ del baño.</div>
+  <div class="qa"><b>¿Para qué sirve el ácido bórico?</b>Es un buffer: mantiene el pH cerca del cátodo y evita que precipite Ni(OH)₂ sobre la pieza.</div>
+  <div class="qa"><b>¿Por qué el cromo tiene eficiencia tan baja?</b>La reducción de Cr⁶⁺ a Cr⁰ requiere 6 electrones y pasa por intermedios; la mayor parte de la corriente se gasta en H₂ y en reducir Cr⁶⁺ solo hasta Cr³⁺.</div>
+  <div class="qa"><b>¿Qué pasa si el pH del baño de níquel es muy bajo o muy alto?</b>Muy bajo: aumenta el H₂, baja la eficiencia y aparecen picaduras. Muy alto: precipitan hidróxidos y el depósito queda frágil y oscuro.</div>
+  <div class="qa"><b>¿Cómo calcularon el área?</b>Con la regla en la foto: 2,34 cm de ancho por 4,2 cm sumergidos, por las dos caras, ≈ 20,1 cm².</div>
+  <div class="qa"><b>¿Los valores en gris de la tabla los midieron?</b>No. Son condiciones de referencia de la literatura para cada baño; los tiempos se estimaron con Faraday a partir de las masas. Los valores medidos están en negro.</div>
+  <div class="qa"><b>¿Por qué el espesor de cromo da 3,1 µm si el decorativo es de 0,2–1 µm?</b>El incremento de masa incluye la zona quemada por el contacto de los electrodos, donde se forman óxidos y depósito poroso. No todo el incremento es cromo metálico compacto.</div>
+  <div class="qa"><b>¿Qué cambiarían si repitieran la práctica?</b>Controlar la temperatura en 45–55 °C, usar 3–6 A para esta área, fijar la separación entre electrodos con un soporte rígido y agitar suavemente o por aire.</div>
+  <div class="qa"><b>¿Por qué se lijó y decapó el níquel antes del cromado?</b>El níquel forma una película pasiva al aire. Si no se activa, el cromo no se adhiere bien.</div>
+  <div class="note">Frases útiles si se quedan en blanco: “la masa depositada depende de la carga, Q = I · t”; “el níquel protege, el cromo da dureza y brillo”; “el contacto desvió la corriente fuera del baño”.</div>
+</div>
+
+</body>
+</html>
