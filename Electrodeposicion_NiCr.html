@@ -291,18 +291,21 @@ body.static .active .draw{stroke-dashoffset:0}
 <!-- 7 SIMULADOR Cr -->
 <section class="slide" data-block="01 · Fundamentos" data-anim="crmap">
   <h2 class="r">Corriente y temperatura en el cromado</h2>
-  <div class="r" style="--d:1;position:absolute;left:80px;top:215px;width:800px">
-    <svg id="crMap" width="800" height="520" viewBox="0 0 760 490"></svg>
-  </div>
-  <div class="r" style="--d:2;position:absolute;right:80px;top:220px;width:580px">
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
-      <div class="card" style="padding:20px 24px"><div class="sub">Densidad de corriente</div><div class="mono" id="ciV" style="font-size:34px;font-weight:600;margin-top:6px"></div></div>
-      <div class="card" style="padding:20px 24px"><div class="sub">Temperatura</div><div class="mono" id="cTV" style="font-size:34px;font-weight:600;margin-top:6px"></div></div>
+  <div class="r" style="--d:1;position:absolute;left:80px;top:200px;width:760px">
+    <canvas id="crCanvas" width="1520" height="620" style="width:760px;height:310px;border-radius:16px;border:1px solid var(--line);background:#fff"></canvas>
+    <div class="tiles" style="grid-template-columns:repeat(4,1fr);margin-top:14px">
+      <div class="tile"><div class="k">j fijada</div><div class="v" id="ciV"></div></div>
+      <div class="tile"><div class="k">Temperatura</div><div class="v" id="cTV"></div></div>
+      <div class="tile"><div class="k">I = j · A</div><div class="v" id="ciI"></div></div>
+      <div class="tile"><div class="k">V resultante*</div><div class="v" id="ciU"></div></div>
     </div>
-    <div class="phases" id="crPh" style="margin:18px 0"><span data-k="o">Opaco</span><span data-k="q">Quemado</span><span data-k="t">Alta T</span><span data-k="b">Óptimo</span></div>
-    <div class="card" id="crState" style="min-height:250px"></div>
+    <div class="phases" id="crPh" style="margin-top:14px"><span data-k="o">Opaco</span><span data-k="q">Quemado</span><span data-k="t">Alta T</span><span data-k="b">Óptimo</span></div>
   </div>
-  <p class="note r" style="--d:3;position:absolute;left:80px;bottom:66px">Baño CrO₃/H₂SO₄ (100:1). Al subir la temperatura, el rango brillante se desplaza a corrientes mayores.</p>
+  <div class="r" style="--d:2;position:absolute;right:80px;top:200px;width:600px">
+    <svg id="crMap" width="600" height="387" viewBox="0 0 760 490"></svg>
+    <div class="card" id="crState" style="margin-top:10px;min-height:205px;padding:20px 24px"></div>
+  </div>
+  <p class="note r" style="--d:3;position:absolute;left:80px;bottom:62px">Baño CrO₃/H₂SO₄ (100:1), área 20,1 cm². * Modelo simplificado V = V₀ + I·R. Al subir la temperatura, el rango brillante se desplaza a corrientes mayores.</p>
 </section>
 
 <!-- 8 NIQUELADO -->
@@ -824,35 +827,57 @@ function drawIV(j,V,col){const s=document.getElementById('ivChart');s.innerHTML=
 niUI();drawNi();
 
 /* mapa Cr */
-const CRK=[[0,6,50],[2.5,6,50],[4.5,48,46],[7,48,46],[9,16,78],[11.5,16,78],[13.5,22,50]];let crLastZ='';
+const CRK=[[0,10,50],[2.5,10,50],[4.5,48,46],[7,48,46],[9,40,72],[11.5,40,72],[13.5,22,50]];let crLastZ='';
 const lo=T=>0.55*T-15,hi=T=>1.1*T-25;
 const crEta=(i,T)=>Math.max(1,Math.min(20,4+0.3*i-0.2*(T-45)));
-function crUI(i,T,tt){document.getElementById('ciV').textContent=fmt(i,0)+' A/dm²';document.getElementById('cTV').textContent=fmt(T,0)+' °C';
+function crZone(j,T){if(j>hi(T))return'q';if(j<lo(T)||T<45)return'o';if(T>55)return't';return'b';}
+const CRZ={o:['Opaco','#3B5B88','var(--cr-soft)','Corriente baja para esta temperatura: el Cr⁶⁺ casi no llega a Cr⁰. El depósito sale lechoso o no se forma y casi toda la carga va a H₂.','Subir la corriente o bajar la temperatura.'],
+  q:['Quemado','#C6452D','var(--hot-soft)','Corriente alta para esta temperatura: cromo gris oscuro, rugoso y nodular en bordes y esquinas, con mucho H₂ y calentamiento local.','Bajar la corriente o subir la temperatura hasta la franja verde.'],
+  t:['Alta T','#C98B1B','var(--amb-soft)','Temperatura por encima de 55 °C: el rango brillante se corre a corrientes mayores y la eficiencia baja. El cromo sale gris y sin brillo.','Bajar la temperatura a 45–55 °C.'],
+  b:['Óptimo','#2E8B57','var(--ok-soft)','Dentro de la franja brillante a 45–55 °C: cromo duro, brillante y adherente sobre el níquel.','Mantener corriente y temperatura estables.']};
+const crc=document.getElementById('crCanvas'),crx=crc.getContext('2d');let crT=0;
+function drawCr(j,T,z){const W=1520,H=620;crT++;crx.clearRect(0,0,W,H);
+  const g=crx.createLinearGradient(0,0,0,H);g.addColorStop(0,'#F7E3C6');g.addColorStop(1,'#E2A673');crx.fillStyle=g;crx.fillRect(0,0,W,H);
+  crx.fillStyle='#C8784C';crx.fillRect(0,500,W,120);crx.fillStyle='#fff';crx.font='600 28px Space Grotesk';crx.fillText('Cu',30,575);
+  crx.fillStyle='#8E9A96';crx.fillRect(0,468,W,32);crx.fillStyle='#fff';crx.font='600 22px Space Grotesk';crx.fillText('Ni',30,492);
+  const r=rnd(5);const base=468;
+  if(z==='o'){for(let k=0;k<40;k++){const x=r()*W,w=20+r()*50;crx.fillStyle='rgba(235,238,242,.85)';crx.fillRect(x,base-5-r()*3,w,6);}}
+  else if(z==='b'){const gg=crx.createLinearGradient(0,base-30,0,base);gg.addColorStop(0,'#F4F8FD');gg.addColorStop(.5,'#C3D0E2');gg.addColorStop(1,'#9DB0CA');crx.fillStyle=gg;crx.fillRect(0,base-30,W,30);
+    crx.fillStyle='rgba(255,255,255,.9)';const sx=(crT*4)%(W+300)-300;crx.fillRect(sx,base-25,220,4);}
+  else if(z==='t'){crx.fillStyle='#B9C0C8';crx.fillRect(0,base-14,W,14);for(let k=0;k<60;k++){crx.fillStyle='rgba(150,158,168,.6)';crx.fillRect(r()*W,base-14+r()*10,10+r()*20,3);}}
+  else{for(let k=0;k<80;k++){const x=r()*W,w=10+r()*22,h=14+r()*48;crx.fillStyle=r()>.5?'#4A4F57':'#5C626B';crx.beginPath();crx.ellipse(x,base,w/2,h,0,Math.PI,0);crx.fill();
+      if(r()>.65){crx.strokeStyle='#2E3236';crx.lineWidth=3;crx.beginPath();crx.moveTo(x,base-h);crx.lineTo(x+(r()-.5)*40,base-h-24-r()*30);crx.stroke();}}}
+  const eta=crEta(j,T);const nb=Math.round(30+(100-eta)*0.45+({q:30,t:14}[z]||0));const rb=rnd(9);
+  crx.strokeStyle='#C99A6A';crx.fillStyle='rgba(255,255,255,.8)';crx.lineWidth=2;
+  for(let k=0;k<nb;k++){const x0=rb()*W,sp=1.2+rb()*2.8,rad=3+rb()*(z==='q'?11:8);const y=(base-10-((crT*sp+rb()*440)%440));crx.beginPath();crx.arc(x0+Math.sin((crT+k*17)/18)*6,y,rad,0,7);crx.fill();crx.stroke();}
+  const ri=rnd(13);crx.font='700 15px Inter';crx.textAlign='center';
+  for(let k=0;k<12;k++){const x=(ri()*W+crT*(ri()-.5)*.6+W)%W,y=90+((ri()*320+Math.sin((crT+k*40)/40)*20)%320);crx.fillStyle='#B8643A';crx.beginPath();crx.arc(x,y,20,0,7);crx.fill();crx.fillStyle='#fff';crx.fillText('Cr(VI)',x,y+5);}
+  crx.textAlign='left';crx.fillStyle='#16181D';crx.font='600 28px Inter';crx.fillText('j = '+fmt(j,0)+' A/dm²    T = '+fmt(T,0)+' °C    η ≈ '+fmt(eta,0)+' %',30,48);}
+function crUI(i,T,tt){const I=i*CELL.A,V=CELL.cr.V0+I*CELL.cr.R,z=crZone(i,T);
+  document.getElementById('ciV').innerHTML=fmt(i,0)+'<small>A/dm²</small>';document.getElementById('cTV').innerHTML=fmt(T,0)+'<small>°C</small>';
+  document.getElementById('ciI').innerHTML=fmt(I,2)+'<small>A</small>';document.getElementById('ciU').innerHTML=fmt(V,2)+'<small>V</small>';
+  drawCr(i,T,z);
   const s=document.getElementById('crMap');s.innerHTML='';const X=a=>70+a/60*660,Y=t=>420-(t-35)/50*390;
   let pl='',ph='';for(let t=35;t<=85;t++){pl+=`${X(Math.max(0,lo(t)))},${Y(t)} `;ph+=`${X(Math.min(60,hi(t)))},${Y(t)} `;}
-  el('rect',{x:70,y:30,width:660,height:390,fill:'#F4F2EC'},s);
-  el('polygon',{points:`70,420 70,30 ${pl.trim().split(' ').reverse().join(' ')}`,fill:'#E9EEF5'},s);
+  el('rect',{x:70,y:30,width:660,height:390,fill:'#E9EEF5'},s);
   el('polygon',{points:pl+ph.trim().split(' ').reverse().join(' '),fill:'#E1F1E7'},s);
   el('polygon',{points:`${ph} 730,30 730,420`,fill:'#F8E3DD'},s);
-  el('text',{x:X(3),y:Y(80),'font-size':19,fill:'#3B5B88','font-weight':600},s).textContent='Opaco o sin depósito';
-  el('text',{x:X(24),y:Y(50),'font-size':19,fill:'#2E8B57','font-weight':600},s).textContent='Brillante';
-  el('text',{x:X(44),y:Y(39),'font-size':19,fill:'#C6452D','font-weight':600},s).textContent='Quemado';
-  el('rect',{x:X(15),y:Y(55),width:X(30)-X(15),height:Y(45)-Y(55),fill:'none',stroke:'#2E8B57','stroke-width':2.5,'stroke-dasharray':'6 5'},s);
-  el('text',{x:X(15),y:Y(55)-8,'font-size':16,fill:'#2E8B57','font-weight':600},s).textContent='Recomendado';
+  el('rect',{x:70,y:30,width:660,height:Y(55)-30,fill:'#F8EED9',opacity:.5},s);
+  el('text',{x:X(3),y:Y(80),'font-size':21,fill:'#3B5B88','font-weight':600},s).textContent='Opaco';
+  el('text',{x:X(30),y:Y(80),'font-size':21,fill:'#C98B1B','font-weight':600},s).textContent='Alta T';
+  el('text',{x:X(44),y:Y(39),'font-size':21,fill:'#C6452D','font-weight':600},s).textContent='Quemado';
+  el('rect',{x:X(15),y:Y(55),width:X(30)-X(15),height:Y(45)-Y(55),fill:'none',stroke:'#2E8B57','stroke-width':3,'stroke-dasharray':'6 5'},s);
+  el('text',{x:X(15),y:Y(55)-9,'font-size':19,fill:'#2E8B57','font-weight':600},s).textContent='Óptimo';
   let tr='';for(let q=0;q<=Math.min(tt,13.5);q+=.1){const [a,b]=seq(CRK,q);tr+=(q?'L':'M')+X(a)+' '+Y(b);}
   el('path',{d:tr,fill:'none',stroke:'#16181D','stroke-width':2,'stroke-dasharray':'3 6',opacity:.5},s);
-  for(let a=0;a<=60;a+=10)el('text',{x:X(a),y:446,'text-anchor':'middle','font-size':16,fill:'#62666E'},s).textContent=a;
-  for(let t=40;t<=80;t+=10)el('text',{x:60,y:Y(t)+5,'text-anchor':'end','font-size':16,fill:'#62666E'},s).textContent=t+' °C';
-  el('text',{x:400,y:476,'text-anchor':'middle','font-size':17,fill:'#33363D'},s).textContent='Densidad de corriente (A/dm²)';
-  el('circle',{cx:X(i),cy:Y(T),r:12,fill:'#16181D',stroke:'#fff','stroke-width':3},s);
-  const e=crEta(i,T);let z;const phs=tt<4?'o':tt<8?'q':tt<12.5?'t':'b';
-  document.querySelectorAll('#crPh span').forEach(sp=>{sp.classList.toggle('on',sp.dataset.k===phs);sp.classList.toggle('ok',sp.dataset.k==='b');});
-  if(i<lo(T))z=['Opaco o sin depósito','#3B5B88','var(--cr-soft)','La corriente no alcanza para reducir Cr⁶⁺ a Cr⁰ a esta temperatura. Casi toda la carga se va en H₂.','Subir la corriente o bajar la temperatura.'];
-  else if(i>hi(T))z=['Quemado','#C6452D','var(--hot-soft)','Depósito gris oscuro, rugoso y nodular en bordes. Mucho H₂ y calentamiento.','Bajar la corriente o subir la temperatura.'];
-  else z=['Brillante','#2E8B57','var(--ok-soft)','Depósito duro y brillante.','Mantener la temperatura estable.'];
-  const zk=z[0]+phs;if(zk===crLastZ)return;crLastZ=zk;
-  document.getElementById('crState').innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center"><span class="tag" style="background:${z[2]};color:${z[1]}">${z[0]}</span><span class="mono" style="font-size:21px">η ≈ ${fmt(e,0)} %</span></div><p style="margin-top:14px">${z[3]}</p><p style="margin-top:10px;color:var(--ink)"><b>Corrección:</b> ${z[4]}</p><p class="note" style="margin-top:8px">Corriente equivalente en la lámina: ${fmt(i*0.201,1)} A</p>`;}
-crUI(6,50,0);
+  for(let a=0;a<=60;a+=10)el('text',{x:X(a),y:448,'text-anchor':'middle','font-size':18,fill:'#62666E'},s).textContent=a;
+  for(let t=40;t<=80;t+=10)el('text',{x:60,y:Y(t)+6,'text-anchor':'end','font-size':18,fill:'#62666E'},s).textContent=t+' °C';
+  el('text',{x:400,y:480,'text-anchor':'middle','font-size':19,fill:'#33363D'},s).textContent='Densidad de corriente j (A/dm²)';
+  el('circle',{cx:X(i),cy:Y(T),r:13,fill:'#16181D',stroke:'#fff','stroke-width':3},s);
+  document.querySelectorAll('#crPh span').forEach(sp=>{sp.classList.toggle('on',sp.dataset.k===z);sp.classList.toggle('ok',sp.dataset.k==='b');});
+  const e=crEta(i,T),Z=CRZ[z];const zk=z+Math.round(e);if(zk===crLastZ)return;crLastZ=zk;
+  document.getElementById('crState').innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center"><span class="tag" style="background:${Z[2]};color:${Z[1]}">${Z[0]}</span><span style="font:600 20px var(--fb)">η ≈ ${fmt(e,0)} %</span></div><p style="margin-top:12px;font-size:20px">${Z[3]}</p><p style="margin-top:8px;font-size:20px;color:var(--ink)"><b>Corrección:</b> ${Z[4]}</p>`;}
+crUI(10,50,0);
 
 /* grafica de masas */
 (function(){const s=document.getElementById('massChart');const pts=[['Inicial',29.318,'#B8643A'],['Niquelado',29.470,'#4F7A6C'],['Cromado',29.515,'#3B5B88']];
